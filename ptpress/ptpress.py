@@ -1,10 +1,9 @@
 # 导库
 import os
 import requests
-from bs4 import BeautifulSoup
 import json
 import re
-import sqlite3  # 导入sqlite3
+import sqlite3
 
 # 1.  基础网页
 base = "http://www.ptpress.com.cn/"
@@ -79,101 +78,110 @@ try:
     c.execute(sql)  # 执行sql语句
 except sqlite3.OperationalError as e:
     print('book表已存在')
-
-# 一、爬取新书推荐中书籍
-for type in types:
-    bookId = type['bookTagId']  # # 提取数据
-    categories = type['name']  # 提取数据
-    print(bookId, categories)  # 打印数据
-    # 3. 推荐分类对应的书目地址
-    bookListUrl = "recommendBook/getRecommendBookListForPortal"  # 推荐书目地址
-    reUrl = base + bookListUrl + "?bookTagId=" + bookId  # 拼接地址
-    res = requests.get(reUrl, headers=head)  # 发起请求
-    html = res.text  # 获取网页
-    # print(html)  # 打印网页
-    boosInfo = json.loads(html)  # 解析json数据
-    books = boosInfo['data']  # 通过键 ‘data' 提取数据
-    for book in books:  # 提取数据
-        picPath = book['picPath']
-        bookName = book['bookName']
-        bookName = re.sub(r'[^\w\s.-]', '', bookName)  # 去掉特殊符号
-        bookId = book['bookId']
-        print(picPath, bookName, bookId)  # 打印数据
-
-        # requests.get(picPath,bookName,bookId)  # 下载图片
-        rt = requests.get(picPath)  # 获取图片
-        file = open(f'新书推荐/{bookName}.jpg', 'wb')  # 保存图片
-        file.write(rt.content)  # 保存图片
-        file.close()
-
-        detail_url = f'{base}bookinfo/getBookDetailsById?bookId={bookId}'
-        response = requests.post(url=detail_url, headers=head)
-        bookDetailInfo = response.json()['data']
-        name = bookDetailInfo['bookName']
-        authors = bookDetailInfo['author']
-        prices = bookDetailInfo['price']
-        discounts = bookDetailInfo['discountPrice']
-        authors_intro = bookDetailInfo['authorIntro']['data']
-        content_intro = bookDetailInfo['resume']['data']
-        insert_sql = '''
-        INSERT INTO book (columns, categories, name, authors, prices, discounts, authors_intro, content_intro)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-        '''
-        c.execute(insert_sql, ('新书推荐', categories, name, authors, float(prices), float(discounts), authors_intro, content_intro))
-        # 提交事务
-        conn.commit()
-
-# 二、爬取重要荣誉中的内容
-for honor in honors:
-    honor_url = base + honor['picPath']
-    res = requests.get(honor_url, headers=head)
-    file = open(f'重要荣誉/{honor["honorName"]}.jpg', 'wb')  # 保存图片
-    file.write(res.content)  # 保存图片
-    file.close()
+#
+# # 一、爬取新书推荐中书籍
+# for type in types:
+#     bookId = type['bookTagId']  # # 提取数据
+#     categories = type['name']  # 提取数据
+#     print(bookId, categories)  # 打印数据
+#     # 3. 推荐分类对应的书目地址
+#     bookListUrl = "recommendBook/getRecommendBookListForPortal"  # 推荐书目地址
+#     reUrl = base + bookListUrl + "?bookTagId=" + bookId  # 拼接地址
+#     res = requests.get(reUrl, headers=head)  # 发起请求
+#     html = res.text  # 获取网页
+#     # print(html)  # 打印网页
+#     boosInfo = json.loads(html)  # 解析json数据
+#     books = boosInfo['data']  # 通过键 ‘data' 提取数据
+#     for book in books:  # 提取数据
+#         picPath = book['picPath']
+#         bookName = book['bookName']
+#         bookName = re.sub(r'[^\w\s.-]', '', bookName)  # 去掉特殊符号
+#         bookId = book['bookId']
+#         print(picPath, bookName, bookId)  # 打印数据
+#
+#         # requests.get(picPath,bookName,bookId)  # 下载图片
+#         rt = requests.get(picPath)  # 获取图片
+#         file = open(f'新书推荐/{bookName}.jpg', 'wb')  # 保存图片
+#         file.write(rt.content)  # 保存图片
+#         file.close()
+#
+#         detail_url = f'{base}bookinfo/getBookDetailsById?bookId={bookId}'
+#         response = requests.post(url=detail_url, headers=head)
+#         bookDetailInfo = response.json()['data']
+#         name = bookDetailInfo['bookName']
+#         authors = bookDetailInfo['author']
+#         prices = bookDetailInfo['price']
+#         discounts = bookDetailInfo['discountPrice']
+#         authors_intro = bookDetailInfo['authorIntro']['data']
+#         content_intro = bookDetailInfo['resume']['data']
+#         insert_sql = '''
+#         INSERT INTO book (columns, categories, name, authors, prices, discounts, authors_intro, content_intro)
+#         VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+#         '''
+#         c.execute(insert_sql, ('新书推荐', categories, name, authors, float(prices), float(discounts), authors_intro, content_intro))
+#         # 提交事务
+#         conn.commit()
+#
+# # 二、爬取重要荣誉中的内容
+# for honor in honors:
+#     honor_url = base + honor['picPath']
+#     res = requests.get(honor_url, headers=head)
+#     file = open(f'重要荣誉/{honor["honorName"]}.jpg', 'wb')  # 保存图片
+#     file.write(res.content)  # 保存图片
+#     file.close()
 
 # 三、爬取获奖出版物的中书籍
 for prize in prizes:
     bookId = prize['id']  # # 提取数据
     categories = prize['name']  # 提取数据
     print(bookId, categories)  # 打印数据
-    bookListUrl = "prizeBook/getPrizeBook4Index"  # 获奖出版物书目地址
+    bookListUrl = "prizeBook/getPrizeInfo"  # 获奖出版物书目地址
     reUrl = base + bookListUrl + "?prizeTypeId=" + bookId  # 拼接地址
     res = requests.get(reUrl, headers=head)  # 发起请求
     html = res.text  # 获取网页
     boosInfo = json.loads(html)  # 解析json数据
-    books = boosInfo['data']  # 通过键 ‘data' 提取数据
-    for book in books:  # 提取数据
-        picPath = 'https://cdn.ptpress.cn/' + book['ossPath']
-        bookName = book['bookName']
-        bookName = re.sub(r'[^\w\s.-]', '', bookName)  # 去掉特殊符号
-        try:
-            bookId = book['bookUrl'].replace('https://www.ptpress.com.cn/shopping/buy?bookId=', '')
-        except:
-            print(f'{bookName}无法查看详细')
-            continue
-        print(picPath, bookName, bookId)  # 打印数据
+    # 先循环第几届，再循环书本
+    book_year = boosInfo['data']  # 通过键 ‘data' 提取数据
+    for year in book_year:  # 提取数据
+        for book in year['prizeBook']:
+            picPath = 'https://cdn.ptpress.cn/' + book['ossPath']
+            bookName = book['bookName']
+            bookName = re.sub(r'[^\w\s.-]', '', bookName)  # 去掉特殊符号
 
-        rt = requests.get(picPath)  # 获取图片
-        file = open(f'获奖出版物/{bookName}.jpg', 'wb')  # 保存图片
-        file.write(rt.content)  # 保存图片
-        file.close()
+            rt = requests.get(picPath)  # 获取图片
+            file = open(f'获奖出版物/{bookName}.jpg', 'wb')  # 保存图片
+            file.write(rt.content)  # 保存图片
+            file.close()
 
-        detail_url = f'{base}bookinfo/getBookDetailsById?bookId={bookId}'
-        response = requests.post(url=detail_url, headers=head)
-        bookDetailInfo = response.json()['data']
-        name = bookDetailInfo['bookName']
-        authors = bookDetailInfo['author']
-        prices = bookDetailInfo['price']
-        discounts = bookDetailInfo['discountPrice']
-        authors_intro = bookDetailInfo['authorIntro']['data']
-        content_intro = bookDetailInfo['resume']['data']
-        insert_sql = '''
-        INSERT INTO book (columns, categories, name, authors, prices, discounts, authors_intro, content_intro)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-        '''
-        c.execute(insert_sql, ('获奖出版物', categories, name, authors, float(prices), float(discounts), authors_intro, content_intro))
-        # 提交事务
-        conn.commit()
+            try:
+                bookId = book['bookUrl'].replace('https://www.ptpress.com.cn/shopping/buy?bookId=', '')
+            except:
+                print(f'{bookName}无法查看详细')
+                continue
+            print(picPath, bookName, bookId)  # 打印数据
+
+            detail_url = f'{base}bookinfo/getBookDetailsById?bookId={bookId}'
+            response = requests.post(url=detail_url, headers=head)
+            bookDetailInfo = response.json()['data']
+            if not bookDetailInfo:
+                print(f'{bookName}无法查看详细')
+                continue
+            name = bookDetailInfo['bookName']
+            authors = bookDetailInfo['author']
+            prices = bookDetailInfo['price']
+            discounts = bookDetailInfo['discountPrice']
+            try:
+                authors_intro = bookDetailInfo['authorIntro']['data']
+            except:
+                authors_intro = ''
+            content_intro = bookDetailInfo['resume']['data']
+            insert_sql = '''
+            INSERT INTO book (columns, categories, name, authors, prices, discounts, authors_intro, content_intro)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+            '''
+            c.execute(insert_sql, ('获奖出版物', categories, name, authors, float(prices), float(discounts), authors_intro, content_intro))
+            # 提交事务
+            conn.commit()
 
 # 关闭连接
 conn.close()
