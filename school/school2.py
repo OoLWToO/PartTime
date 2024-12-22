@@ -3,7 +3,6 @@ import os
 import pandas as pd
 import requests
 from lxml import etree
-from openpyxl.styles.builtins import total
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
@@ -26,10 +25,11 @@ data = {
 }
 
 if __name__ == '__main__':
-    # 检查路径是否存在
+    # 检查路径是否存在, 如果路径不存, 则创建路径
     if not os.path.exists('爬虫'):
-        # 如果路径不存在，则创建路径
         os.makedirs('爬虫')
+    if not os.path.exists('数据分析及可视化'):
+        os.makedirs('数据分析及可视化')
     codeId_list = {}
     for search_content in ['数学', '计算机科学与技术']:
         code_search_url = f'http://kaoyan.cqvip.com/api/kaoyan/info/major/page?current=1&name={search_content}&majorType=2&degreeType=1&size=100'
@@ -88,4 +88,4 @@ if __name__ == '__main__':
                     data['专业课一'].append(course_one_score)
                     data['专业课二'].append(course_two_score)
             df = pd.DataFrame(data)
-            df.to_csv('爬虫/数学与计算机专业分数线数据统计1.csv', encoding='utf-8-sig', index=False)
+            df.to_csv('爬虫/数学与计算机专业分数线数据统计2.csv', encoding='utf-8-sig', index=False)

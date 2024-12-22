@@ -142,7 +142,7 @@ def create_type_chart():
 
 
 if __name__ == '__main__':
-    for i in range(40):
+    for i in range(1000):
         # 发送请求
         url = f'https://yc.lianjia.com/ershoufang/pg{i + 1}/'
         r = requests.get(url, headers=headers)

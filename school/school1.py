@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import requests
 from lxml import etree
-from openpyxl.styles.builtins import total
+from matplotlib import pyplot as plt
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
@@ -32,22 +32,62 @@ data = {
     '专业课二': [],
 }
 
-if __name__ == '__main__':
-    # 检查路径是否存在
-    if not os.path.exists('爬虫'):
-        # 如果路径不存在，则创建路径
-        os.makedirs('爬虫')
-    codeId_list = {}
-    for search_content in ['数学', '计算机']:
-        code_search_url = f'http://kaoyan.cqvip.com/api/kaoyan/info/major/page?current=1&name={search_content}&majorType=2&degreeType=1&size=100'
+chart_data = {
+    '河北': {},
+    '北京': {},
+    '天津': {},
+    '985': {},
+    '211': {},
+}
+
+def create_chart(classify, subject, degreeType):
+    table_name = f'{classify}学校{subject}专业分数线分布条形图'
+    item = []
+    value = []
+    if classify not in chart_data:
+        return
+    if subject not in chart_data[classify]:
+        return
+    for d in chart_data[classify][subject]:
+        if str(d) in item:
+            index = item.index(str(d))
+            value[index] += 1
+        else:
+            item.append(str(d))
+            value.append(1)
+    if len(item) < 3 or len(value) < 3:
+        return
+    sorted_pairs = sorted(zip(item, value), key=lambda pair: pair[0])
+    sorted_items, sorted_values = zip(*sorted_pairs)
+    plt.clf()
+    plt.rcParams['font.sans-serif'] = ['SimHei']
+    plt.figure(figsize=(6, 6))
+    plt.xticks(rotation=45)
+    plt.bar(sorted_items, sorted_values)
+    plt.title(f'{table_name}')
+    plt.xlabel('分数')
+    plt.ylabel('数量')
+    if degreeType == 1:
+        plt.savefig(f'数据分析及可视化/{table_name}')
+    else:
+        plt.savefig(f'第三题/{table_name}')
+
+def get_subject_list(search_list, degreeType):
+    subject_list = []
+    for search_content in search_list:
+        code_search_url = f'http://kaoyan.cqvip.com/api/kaoyan/info/major/page?current=1&name={search_content}&majorType=2&degreeType={degreeType}&size=100'
         r = requests.get(code_search_url, headers=headers)
-        subject_list = r.json()['data']['records']
-        for subject in subject_list:
+        records = r.json()['data']['records']
+        for record in records:
             # 专业代码中包含'Z'的为自定义专业, 不查询
-            if 'Z' not in subject['code']:
-                codeId_list[(subject['id'])] = subject['code']
-    for codeId, code in codeId_list.items():
-        school_search_url = f'http://kaoyan.cqvip.com/api/kaoyan/info/major/schoolInfo?current=1&size=1000&majorId={codeId}'
+            if 'Z' not in record['code']:
+                subject_list.append(record)
+    return subject_list
+
+def get_data(search_list, degreeType):
+    subject_list = get_subject_list(search_list, degreeType)
+    for subject in subject_list:
+        school_search_url = f'http://kaoyan.cqvip.com/api/kaoyan/info/major/schoolInfo?current=1&size=1000&majorId={subject["id"]}'
         r = requests.get(school_search_url, headers=headers)
         school_list = r.json()['data']['records']
         for school in school_list:
@@ -63,10 +103,14 @@ if __name__ == '__main__':
             school_affiliation = html.xpath(school_xpath.format('院校隶属'))[0].replace(' ', '').replace('\n', '').replace(':', '')
             school_floor_space = html.xpath(school_xpath.format('占地面积'))[0].replace(' ', '').replace('\n', '').replace(':', '')
             school_address = html.xpath(school_xpath.format('学校地址'))[0].replace(' ', '').replace('\n', '').replace(':', '')
+            # 获取位置用于统计
+            position = html.xpath('//*[@class="title mr-83"]/following-sibling::small/text()')[0]
+            is_985 = html.xpath('//*[@class="label-container xy-start mb-83"]/div[contains(text(),"985")]')
+            is_211 = html.xpath('//*[@class="label-container xy-start mb-83"]/div[contains(text(),"211")]')
 
             # 获取专业介绍: 所属院系、招生年份、学习方式、考试方式、计划招生人数、所属门类、所属一级学科
             subject_xpath = '//*[@class="title bold" and contains(text(),"{}")]/following-sibling::span/@title'
-            subject_url = f'http://kaoyan.cqvip.com/school/{schoolId}/introduce/{codeId}/{collegeId}?year=2024'
+            subject_url = f'http://kaoyan.cqvip.com/school/{schoolId}/introduce/{subject["id"]}/{collegeId}?year=2024'
             r = requests.get(subject_url, headers=headers)
             html = etree.HTML(r.text)
             subject_affiliation = html.xpath(subject_xpath.format('所属院系'))[0]
@@ -82,7 +126,7 @@ if __name__ == '__main__':
             r = requests.get(score_line_url, headers=headers)
             score_line_list = r.json()['data']['records']
             for score_line in score_line_list:
-                if score_line['majorCode'] == code:
+                if score_line['majorCode'] == subject['code']:
                     degree_type = score_line['majorType']
                     subject_code = score_line['majorCode']
                     subject_name = score_line['majorName']
@@ -115,5 +159,43 @@ if __name__ == '__main__':
                     data['英语'].append(english)
                     data['专业课一'].append(course_one_score)
                     data['专业课二'].append(course_two_score)
-            df = pd.DataFrame(data)
-            df.to_csv('爬虫/数学与计算机专业分数线数据统计.csv', encoding='utf-8-sig', index=False)
+                    # 统计爬取专业在河北、北京、天津、985、211
+                    if position == '河北':
+                        if not chart_data['河北'].get(subject['name']):
+                            chart_data['河北'][subject['name']] = []
+                        chart_data['河北'][subject['name']].append(total_score)
+                    if position == '北京':
+                        if not chart_data['北京'].get(subject['name']):
+                            chart_data['北京'][subject['name']] = []
+                        chart_data['北京'][subject['name']].append(total_score)
+                    if position == '天津':
+                        if not chart_data['天津'].get(subject['name']):
+                            chart_data['天津'][subject['name']] = []
+                        chart_data['天津'][subject['name']].append(total_score)
+                    if is_985:
+                        if not chart_data['985'].get(subject['name']):
+                            chart_data['985'][subject['name']] = []
+                        chart_data['985'][subject['name']].append(total_score)
+                    if is_211:
+                        if not chart_data['211'].get(subject['name']):
+                            chart_data['211'][subject['name']] = []
+                        chart_data['211'][subject['name']].append(total_score)
+        create_chart('河北', subject['name'], degreeType)
+        create_chart('北京', subject['name'], degreeType)
+        create_chart('天津', subject['name'], degreeType)
+        create_chart('985', subject['name'], degreeType)
+        create_chart('211', subject['name'], degreeType)
+
+if __name__ == '__main__':
+    # 检查路径是否存在, 如果路径不存, 则创建路径
+    if not os.path.exists('爬虫'):
+        os.makedirs('爬虫')
+    if not os.path.exists('数据分析及可视化'):
+        os.makedirs('数据分析及可视化')
+    if not os.path.exists('第三题'):
+        os.makedirs('第三题')
+    # 获取数据, '1'代表学术型硕士, '0'代表专业型硕士
+    get_data(['数学', '计算机', '物理'], 1)
+    get_data(['数学', '计算机'], 0)
+    df = pd.DataFrame(data)
+    df.to_csv('爬虫/数学与计算机专业分数线数据统计1.csv', encoding='utf-8-sig', index=False)
