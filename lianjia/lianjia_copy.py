@@ -74,12 +74,8 @@ if __name__ == '__main__':
     # 重庆: 江北，渝北，南岸，巴南，沙坪坝，九龙坡，渝中，大渡口，江津，北碚
     # 西安: 碑林，未央，灞桥，新城区，莲湖，长安，雁塔，西咸新区（西安）
     citys = ['cq', 'xa']
-    # positions = {
-    #     'cq': ['jiangbei', 'yubei', 'nanan', 'banan', 'shapingba', 'jiulongpo', 'yuzhong', 'dadukou', 'jiangjing', 'beibei'],
-    #     'xa': ['beilin', 'weiyang', 'baqiao', 'xinchengqu', 'lianhu', 'changan7', 'yanta', 'xixianxinquxian']
-    # }
     positions = {
-        'cq': ['jiangjing', 'beibei'],
+        'cq': ['jiangbei', 'yubei', 'nanan', 'banan', 'shapingba', 'jiulongpo', 'yuzhong', 'dadukou', 'jiangjing', 'beibei'],
         'xa': ['beilin', 'weiyang', 'baqiao', 'xinchengqu', 'lianhu', 'changan7', 'yanta', 'xixianxinquxian']
     }
     for city in citys:
@@ -141,4 +137,4 @@ if __name__ == '__main__':
                     data['发布时间'].append(publish_time)
                     data['标签'].append(tag)
             df = pd.DataFrame(data)
-            df.to_csv('链家在售二手房数据1.csv', encoding='utf-8-sig', index=False)
+            df.to_csv('链家在售二手房数据.csv', encoding='utf-8-sig', index=False)

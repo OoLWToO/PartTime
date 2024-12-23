@@ -188,12 +188,12 @@ def get_data(search_list, degreeType):
 
 if __name__ == '__main__':
     # 检查路径是否存在, 如果路径不存, 则创建路径
-    if not os.path.exists('爬虫'):
-        os.makedirs('爬虫')
-    if not os.path.exists('数据分析及可视化'):
-        os.makedirs('数据分析及可视化')
-    if not os.path.exists('第三题'):
-        os.makedirs('第三题')
+    if not os.path.exists(''):
+        os.makedirs('')
+    if not os.path.exists('../数据分析及可视化'):
+        os.makedirs('../数据分析及可视化')
+    if not os.path.exists('../第三题'):
+        os.makedirs('../第三题')
     # 获取数据, '1'代表学术型硕士, '0'代表专业型硕士
     get_data(['数学', '计算机', '物理'], 1)
     get_data(['数学', '计算机'], 0)

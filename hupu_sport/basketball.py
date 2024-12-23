@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 import requests
 from lxml import etree
@@ -42,6 +44,14 @@ def getData():
         hitFreeThrowsRate = player.xpath('./td[10]//text()')[0]
         matches = player.xpath('./td[11]//text()')[0]
         playingTime = player.xpath('./td[12]//text()')[0]
+        # 数据预处理
+        name = name.replace(' ', '').replace('\n', '')
+        name = re.sub(r'[#\$%\^&\* $$ ]', '', name)
+        team = team.replace(' ', '').replace('\n', '')
+        team = re.sub(r'[#\$%\^&\* $$ ]', '', team)
+        hitRate = hitRate.replace(' ', '')
+        hitThreePointsRate = hitThreePointsRate.replace(' ', '')
+        hitFreeThrowsRate = hitFreeThrowsRate.replace(' ', '')
         saveData(ranking, name, team, score, hitShot, hitRate, hitThreePoints, hitThreePointsRate, hitFreeThrows,
                  hitFreeThrowsRate, matches, playingTime)
     df = pd.DataFrame(data)
