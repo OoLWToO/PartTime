@@ -11,10 +11,13 @@ headers = {
 
 data = {
     '学校名称': [],
+    '所在地区': [],
     '创建时间': [],
     '院校隶属': [],
     '占地面积': [],
     '学校地址': [],
+    '是否为985': [],
+    '是否为211': [],
     '所属院系': [],
     '招生年份': [],
     '学习方式': [],
@@ -32,23 +35,12 @@ data = {
     '专业课二': [],
 }
 
-chart_data = {
-    '河北': {},
-    '北京': {},
-    '天津': {},
-    '985': {},
-    '211': {},
-}
 
-def create_chart(classify, subject, degreeType):
+def create_chart(classify, subject, score_list):
     table_name = f'{classify}学校{subject}专业分数线分布条形图'
     item = []
     value = []
-    if classify not in chart_data:
-        return
-    if subject not in chart_data[classify]:
-        return
-    for d in chart_data[classify][subject]:
+    for d in score_list:
         if str(d) in item:
             index = item.index(str(d))
             value[index] += 1
@@ -59,6 +51,7 @@ def create_chart(classify, subject, degreeType):
         return
     sorted_pairs = sorted(zip(item, value), key=lambda pair: pair[0])
     sorted_items, sorted_values = zip(*sorted_pairs)
+    plt.close('all')
     plt.clf()
     plt.rcParams['font.sans-serif'] = ['SimHei']
     plt.figure(figsize=(6, 6))
@@ -67,10 +60,8 @@ def create_chart(classify, subject, degreeType):
     plt.title(f'{table_name}')
     plt.xlabel('分数')
     plt.ylabel('数量')
-    if degreeType == 1:
-        plt.savefig(f'数据分析及可视化/{table_name}')
-    else:
-        plt.savefig(f'第三题/{table_name}')
+    plt.savefig(f'图片/{table_name}')
+
 
 def get_subject_list(search_list, degreeType):
     subject_list = []
@@ -84,7 +75,13 @@ def get_subject_list(search_list, degreeType):
                 subject_list.append(record)
     return subject_list
 
+
 def get_data(search_list, degreeType):
+    score_hebei = {}
+    score_beijing = {}
+    score_tianjin = {}
+    score_985 = {}
+    score_211 = {}
     subject_list = get_subject_list(search_list, degreeType)
     for subject in subject_list:
         school_search_url = f'http://kaoyan.cqvip.com/api/kaoyan/info/major/schoolInfo?current=1&size=1000&majorId={subject["id"]}'
@@ -105,8 +102,8 @@ def get_data(search_list, degreeType):
             school_address = html.xpath(school_xpath.format('学校地址'))[0].replace(' ', '').replace('\n', '').replace(':', '')
             # 获取位置用于统计
             position = html.xpath('//*[@class="title mr-83"]/following-sibling::small/text()')[0]
-            is_985 = html.xpath('//*[@class="label-container xy-start mb-83"]/div[contains(text(),"985")]')
-            is_211 = html.xpath('//*[@class="label-container xy-start mb-83"]/div[contains(text(),"211")]')
+            is_985 = '是' if html.xpath('//*[@class="label-container xy-start mb-83"]/div[contains(text(),"985")]') else '否'
+            is_211 = '是' if html.xpath('//*[@class="label-container xy-start mb-83"]/div[contains(text(),"211")]') else '否'
 
             # 获取专业介绍: 所属院系、招生年份、学习方式、考试方式、计划招生人数、所属门类、所属一级学科
             subject_xpath = '//*[@class="title bold" and contains(text(),"{}")]/following-sibling::span/@title'
@@ -161,41 +158,37 @@ def get_data(search_list, degreeType):
                     data['专业课二'].append(course_two_score)
                     # 统计爬取专业在河北、北京、天津、985、211
                     if position == '河北':
-                        if not chart_data['河北'].get(subject['name']):
-                            chart_data['河北'][subject['name']] = []
-                        chart_data['河北'][subject['name']].append(total_score)
+                        if not score_hebei.get(subject['name']):
+                            score_hebei[subject['name']] = []
+                        score_hebei[subject['name']].append(total_score)
                     if position == '北京':
-                        if not chart_data['北京'].get(subject['name']):
-                            chart_data['北京'][subject['name']] = []
-                        chart_data['北京'][subject['name']].append(total_score)
+                        if not score_beijing.get(subject['name']):
+                            score_beijing[subject['name']] = []
+                        score_beijing[subject['name']].append(total_score)
                     if position == '天津':
-                        if not chart_data['天津'].get(subject['name']):
-                            chart_data['天津'][subject['name']] = []
-                        chart_data['天津'][subject['name']].append(total_score)
+                        if not score_tianjin.get(subject['name']):
+                            score_tianjin[subject['name']] = []
+                        score_tianjin[subject['name']].append(total_score)
                     if is_985:
-                        if not chart_data['985'].get(subject['name']):
-                            chart_data['985'][subject['name']] = []
-                        chart_data['985'][subject['name']].append(total_score)
+                        if not score_985.get(subject['name']):
+                            score_985[subject['name']] = []
+                        score_985[subject['name']].append(total_score)
                     if is_211:
-                        if not chart_data['211'].get(subject['name']):
-                            chart_data['211'][subject['name']] = []
-                        chart_data['211'][subject['name']].append(total_score)
-        create_chart('河北', subject['name'], degreeType)
-        create_chart('北京', subject['name'], degreeType)
-        create_chart('天津', subject['name'], degreeType)
-        create_chart('985', subject['name'], degreeType)
-        create_chart('211', subject['name'], degreeType)
+                        if not score_211.get(subject['name']):
+                            score_211[subject['name']] = []
+                        score_211[subject['name']].append(total_score)
+        create_chart('河北', subject['name'], score_hebei)
+        create_chart('北京', subject['name'], score_beijing)
+        create_chart('天津', subject['name'], score_tianjin)
+        create_chart('985', subject['name'], score_985)
+        create_chart('211', subject['name'], score_211)
 
 if __name__ == '__main__':
     # 检查路径是否存在, 如果路径不存, 则创建路径
-    if not os.path.exists(''):
-        os.makedirs('')
-    if not os.path.exists('../数据分析及可视化'):
-        os.makedirs('../数据分析及可视化')
-    if not os.path.exists('../第三题'):
-        os.makedirs('../第三题')
+    if not os.path.exists('图片'):
+        os.makedirs('图片')
     # 获取数据, '1'代表学术型硕士, '0'代表专业型硕士
-    get_data(['数学', '计算机', '物理'], 1)
+    get_data(['物理'], 1)
     get_data(['数学', '计算机'], 0)
     df = pd.DataFrame(data)
-    df.to_csv('爬虫/数学与计算机专业分数线数据统计1.csv', encoding='utf-8-sig', index=False)
+    df.to_csv('数学&计算机&物理专业分数线数据统计.csv', encoding='utf-8-sig', index=False)
