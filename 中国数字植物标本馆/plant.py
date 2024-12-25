@@ -1,5 +1,6 @@
 import os
 import random
+import re
 import time
 
 import pandas as pd
@@ -48,23 +49,26 @@ data = {
     '物候期': [],
 }
 
+def clean_string_series(series):
+    return series.apply(lambda x: re.sub(r'[\x00-\x1F\x7F-\x9F]', '', str(x)))
+
 
 if __name__ == '__main__':
     # 检查路径是否存在, 如果路径不存, 则创建路径
     if not os.path.exists('图片'):
         os.makedirs('图片')
     # 3787条数据，每页100条，爬取38页
-    for page in range(10, 20):
+    for page in range(1, 38):
         print(f'正在爬取第{page}页')
         # 获取植物列表
-        url = f'https://www.cvh.ac.cn/controller/spms/list.php?&taxonName=%E6%9D%89%E6%9C%A8&offset={page*100}&limit=100'
+        url = f'https://www.cvh.ac.cn/controller/spms/list.php?&taxonName=%E6%9D%89%E6%9C%A8&offset={(page-1)*100}&limit=100'
         r = requests.get(url, headers=headers)
         rows = r.json()['rows']
         for row in rows:
             collection_id = row['collectionID']
             detail_url = f'https://www.cvh.ac.cn/controller/spms/detail.php?id={collection_id}'
             r = requests.get(detail_url, headers=headers)
-            time.sleep(round(random.uniform(2, 4), 2))
+            time.sleep(round(random.uniform(3, 5), 2))
             detail_info = r.json()['rows']
             institution_code = detail_info['institutionCode']
             collection_code = detail_info['collectionCode']
@@ -73,6 +77,8 @@ if __name__ == '__main__':
             identified_man = detail_info['identifiedBy']
             identified_time = detail_info['dateIdentified'] if detail_info['dateIdentified'] else ''
             record_man = detail_info['recordedBy']
+            if record_man:
+                record_man = record_man.replace('', '')
             record_num = detail_info['recordNumber']
             record_time = detail_info['verbatimEventDate']
             record_position = f'{detail_info["country"]} {detail_info["stateProvince"]}'
@@ -103,4 +109,5 @@ if __name__ == '__main__':
             with open(f'图片/{institution_code}{collection_code}.jpg', 'wb') as news_image:
                 news_image.write(r.content)
         df = pd.DataFrame(data)
+        df = df.applymap(lambda x: clean_string_series(x) if isinstance(x, pd.Series) else x)
         df.to_excel('中国数字植物标本馆杉木数据.xlsx', index=False)

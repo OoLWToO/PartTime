@@ -22,16 +22,16 @@ data = {
     '作者': [],
     '出版时间': [],
     '出版社': [],
-    '实体书现价': [],
-    '实体书原价': [],
-    '实体书折扣': []
+    '现价': [],
+    '原价': [],
+    '折扣': []
 }
 
 
 def create_physical_price_chart():
     item = ['9元-', '10-19元', '20-29元', '30-39元', '40-49元', '50-59元', '60-69元', '70-79元', '80-89元', '90元+']
     value = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    for d in data['实体书现价']:
+    for d in data['现价']:
         try:
             if float(d) <= 9:
                 value[0] += 1
@@ -59,16 +59,16 @@ def create_physical_price_chart():
     plt.rcParams['font.sans-serif'] = ['SimHei']
     plt.figure(figsize=(12, 6))
     plt.bar(item, value)
-    plt.title('当当网书籍实体书现价统计条形图')
+    plt.title('当当网书籍现价统计条形图')
     plt.xlabel('价格')
     plt.ylabel('数量')
-    plt.savefig('当当网书籍实体书现价统计条形图.png')
+    plt.savefig('当当网书籍现价统计条形图.png')
 
 
 def create_original_price_chart():
     item = ['9元-', '10-19元', '20-29元', '30-39元', '40-49元', '50-59元', '60-69元', '70-79元', '80-89元', '90元+']
     value = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    for d in data['实体书原价']:
+    for d in data['原价']:
         try:
             if float(d) == 0:
                 continue
@@ -98,10 +98,10 @@ def create_original_price_chart():
     plt.rcParams['font.sans-serif'] = ['SimHei']
     plt.figure(figsize=(12, 6))
     plt.bar(item, value)
-    plt.title('当当网书籍实体书原价统计条形图')
+    plt.title('当当网书籍原价统计条形图')
     plt.xlabel('价格')
     plt.ylabel('数量')
-    plt.savefig('当当网书籍实体书原价统计条形图.png')
+    plt.savefig('当当网书籍原价统计条形图.png')
 
 
 def create_publish_chart():
@@ -150,42 +150,43 @@ def create_word_chart():
 
 
 def getData():
-    # 爬取25页数据，每页20条数据，共500条
-    for page in range(25):
-        # 发送请求，用etree转成html
-        url = f'http://bang.dangdang.com/books/ebooks/98.01.00.00.00.00-month-2024-11-1-{page + 1}'
-        r = requests.get(url, headers=headers)
-        print(url)
-        html = etree.HTML(r.text)
-        # 根据xpath获取书本列表
-        book_list = html.xpath('//*[@class="bang_list_box"]//*[contains(@class,"bang_list")]/li')
-        for book in book_list:
-            # 获取书名、评论数、推荐比例、作者、出版时间、出版社、实体书现价、实体书原价、实体书折扣、电子书价格
-            name = book.xpath('./*[@class="name"]/a/@title')[0]
-            comment_num = book.xpath('./*[@class="star"]/a/text()')[0]
-            recommended_ratio = book.xpath('.//*[@class="tuijian"]/text()')[0]
-            try:
-                author = book.xpath('./*[@class="publisher_info"][1]/a[1]/@title')[0]
-            except:
-                author = ''
-            try:
-                publish_time = book.xpath('./*[@class="publisher_info"][2]/span/text()')[0]
-            except:
-                publish_time = ''
-            try:
-                publish_house = book.xpath('./*[@class="publisher_info"][2]/a/text()')[0]
-            except:
-                publish_house = ''
-            physical_price_now = book.xpath('./*[@class="price"]/p[1]//span[@class="price_n"]/text()')[0]
-            physical_price_original = book.xpath('./*[@class="price"]/p[1]//span[@class="price_r"]/text()')[0]
-            physical_price_discount = book.xpath('./*[@class="price"]/p[1]//span[@class="price_s"]/text()')[0]
-            # 数据预处理
-            name = name.replace(' ', '')
-            physical_price_now = physical_price_now.replace('¥', '')
-            physical_price_original = physical_price_original.replace('¥', '')
-            physical_price_discount = physical_price_discount.replace('¥', '')
-            saveData(name, comment_num, recommended_ratio, author, publish_time, publish_house, physical_price_now,
-                     physical_price_original, physical_price_discount)
+    for month in range(1, 12):
+        # 爬取25页数据，每页20条数据，共500条
+        for page in range(25):
+            # 发送请求，用etree转成html
+            url = f'http://bang.dangdang.com/books/ebooks/98.01.00.00.00.00-month-2024-11-1-{page + 1}'
+            r = requests.get(url, headers=headers)
+            print(url)
+            html = etree.HTML(r.text)
+            # 根据xpath获取书本列表
+            book_list = html.xpath('//*[@class="bang_list_box"]//*[contains(@class,"bang_list")]/li')
+            for book in book_list:
+                # 获取书名、评论数、推荐比例、作者、出版时间、出版社、现价、原价、折扣、电子书价格
+                name = book.xpath('./*[@class="name"]/a/@title')[0]
+                comment_num = book.xpath('./*[@class="star"]/a/text()')[0]
+                recommended_ratio = book.xpath('.//*[@class="tuijian"]/text()')[0]
+                try:
+                    author = book.xpath('./*[@class="publisher_info"][1]/a[1]/@title')[0]
+                except:
+                    author = ''
+                try:
+                    publish_time = book.xpath('./*[@class="publisher_info"][2]/span/text()')[0]
+                except:
+                    publish_time = ''
+                try:
+                    publish_house = book.xpath('./*[@class="publisher_info"][2]/a/text()')[0]
+                except:
+                    publish_house = ''
+                physical_price_now = book.xpath('./*[@class="price"]/p[1]//span[@class="price_n"]/text()')[0]
+                physical_price_original = book.xpath('./*[@class="price"]/p[1]//span[@class="price_r"]/text()')[0]
+                physical_price_discount = book.xpath('./*[@class="price"]/p[1]//span[@class="price_s"]/text()')[0]
+                # 数据预处理
+                name = name.replace(' ', '')
+                physical_price_now = physical_price_now.replace('¥', '')
+                physical_price_original = physical_price_original.replace('¥', '')
+                physical_price_discount = physical_price_discount.replace('¥', '')
+                saveData(name, comment_num, recommended_ratio, author, publish_time, publish_house, physical_price_now,
+                         physical_price_original, physical_price_discount)
 
 
 def saveData(name, comment_num, recommended_ratio, author, publish_time, publish_house, physical_price_now,
@@ -199,15 +200,15 @@ def saveData(name, comment_num, recommended_ratio, author, publish_time, publish
     data['作者'].append(author)
     data['出版时间'].append(publish_time)
     data['出版社'].append(publish_house)
-    data['实体书现价'].append(physical_price_now)
-    data['实体书原价'].append(physical_price_original)
-    data['实体书折扣'].append(physical_price_discount)
+    data['现价'].append(physical_price_now)
+    data['原价'].append(physical_price_original)
+    data['折扣'].append(physical_price_discount)
 
 
 if __name__ == '__main__':
     getData()
     df = pd.DataFrame(data)
-    df.to_excel('当当网2024年top500书籍统计.xlsx', index=False)
+    df.to_excel('当当网2024年1-11月top500电子书统计.xlsx', index=False)
     create_physical_price_chart()
     create_original_price_chart()
     create_publish_chart()
