@@ -81,6 +81,8 @@ def get_data(search_list, degreeType):
             position = html.xpath('//*[@class="title mr-83"]/following-sibling::small/text()')[0]
             is_985 = '是' if html.xpath('//*[@class="label-container xy-start mb-83"]/div[contains(text(),"985")]') else '否'
             is_211 = '是' if html.xpath('//*[@class="label-container xy-start mb-83"]/div[contains(text(),"211")]') else '否'
+            if position not in ['河北', '北京', '天津'] and not (is_985 == '是' or is_211 == '是'):
+                continue
 
             # 获取分数线: 学位类型、专业代码、专业名称、总分、政治、英语、专业课一、专业课二
             score_line_url = f'http://kaoyan.cqvip.com/api/kaoyan/info/reExamination/academic-years-scoreline?current=1&size=1000&schoolIds={schoolId}&year=2024'

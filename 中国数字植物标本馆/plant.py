@@ -54,7 +54,8 @@ if __name__ == '__main__':
     if not os.path.exists('图片'):
         os.makedirs('图片')
     # 3787条数据，每页100条，爬取38页
-    for page in range(38):
+    for page in range(10, 20):
+        print(f'正在爬取第{page}页')
         # 获取植物列表
         url = f'https://www.cvh.ac.cn/controller/spms/list.php?&taxonName=%E6%9D%89%E6%9C%A8&offset={page*100}&limit=100'
         r = requests.get(url, headers=headers)
@@ -63,8 +64,9 @@ if __name__ == '__main__':
             collection_id = row['collectionID']
             detail_url = f'https://www.cvh.ac.cn/controller/spms/detail.php?id={collection_id}'
             r = requests.get(detail_url, headers=headers)
-            time.sleep(round(random.uniform(3, 10), 2))
+            time.sleep(round(random.uniform(2, 4), 2))
             detail_info = r.json()['rows']
+            institution_code = detail_info['institutionCode']
             collection_code = detail_info['collectionCode']
             scientific_name = detail_info['formattedName'].replace('<em>', '').replace('</em>', '')
             chinese_name = detail_info['chineseName']
@@ -93,9 +95,12 @@ if __name__ == '__main__':
             data['生境'].append(habitat)
             data['习性'].append(propensity)
             data['物候期'].append(reproductive_condition)
-            image_url = f'https://image.cvh.ac.cn/files/l/PE/{collection_code}.jpg'
+            image_url = f'https://image.cvh.ac.cn/files/l/{institution_code}/{collection_code}.jpg'
             r = requests.get(image_url, headers=image_headers)
-            with open(f'图片/{collection_code}.jpg', 'wb') as news_image:
+            if r.status_code != 200:
+                print(f'没有图片_{institution_code}_{collection_code}')
+                continue
+            with open(f'图片/{institution_code}{collection_code}.jpg', 'wb') as news_image:
                 news_image.write(r.content)
         df = pd.DataFrame(data)
         df.to_excel('中国数字植物标本馆杉木数据.xlsx', index=False)

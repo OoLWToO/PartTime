@@ -19,8 +19,6 @@ def create_chart(classify, subject, score_list):
         else:
             item.append(str(d))
             value.append(1)
-    if len(item) < 2 or len(value) < 2:
-        return
     sorted_pairs = sorted(zip(item, value), key=lambda pair: pair[0])
     sorted_items, sorted_values = zip(*sorted_pairs)
     plt.close('all')
