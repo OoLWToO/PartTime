@@ -56,83 +56,84 @@ def create_word_chart(word):
     wc.to_file("前500条评论统计词云.png")
 
 
-# 循环爬取1-200页
-for page in range(1, 200):
-    # 请求url
-    url = f'https://travel.qunar.com/p-cs299826-fuzhou-jingdian-3-{page}'
-    # 发送请求
-    r = requests.get(url, headers=headers)
-    time.sleep(1)
-    html = etree.HTML(r.text)
-    # 获取景点列表
-    ele_list = html.xpath('//*[@class="listbox"]/ul/li')
-    for ele in ele_list:
-        # 获取景点名字、英文名、攻略数、点评数、好评率、简介（try处理数据为空的情况）
-        name = ele.xpath('.//*[@class="cn_tit"]/text()')[0]
-        try:
-            en_name = ele.xpath('.//*[@class="en_tit"]/text()')[0]
-        except:
-            en_name = '-'
-        strategy_sum = ele.xpath('.//*[@class="strategy_sum"]/text()')[0]
-        comment_sum = ele.xpath('.//*[@class="comment_sum"]/text()')[0]
-        star = ele.xpath('.//*[@class="cur_star"]/@style')[0]
-        try:
-            introduce = ele.xpath('.//*[@class="desbox"]/text()')[0]
-        except:
-            introduce = '-'
-        # 数据预处理
-        name = name.replace(' ', '')
-        en_name = en_name.replace(' ', '')
-        strategy_sum = strategy_sum.replace(' ', '').replace('\n', '')
-        comment_sum = comment_sum.replace(' ', '').replace('\n', '')
-        star = star.replace('width:', '')
-        introduce = introduce.replace('\n', '')
-        print(f'{name}   {en_name}   {strategy_sum}   {comment_sum}   {star}   {introduce}')
-        # 存入data
-        data['名字'].append(name)
-        data['英文名'].append(en_name)
-        data['攻略数'].append(strategy_sum)
-        data['点评数'].append(comment_sum)
-        data['好评率'].append(star)
-        data['简介'].append(introduce)
-df = pd.DataFrame(data)
-df.to_csv('福州旅游景点统计.csv', encoding='utf-8-sig', index=False)
-#
-# # 爬取八达岭长城50页评论，每页10条数据，并可视化
-# time_item = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-# time_value = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-# star_item = ['好评', '中评', '差评']
-# star_value = [0, 0, 0]
-# word_item = []
-# word_value = []
-# comment_str = ''
-# for page in range(1, 51):
-#     url = f'https://travel.qunar.com/p-oi703478-badalingzhangcheng-1-{page}#lydp'
-#     r = requests.get(url, headers=headers)
-#     time.sleep(1)
-#     html = etree.HTML(r.text)
-#     ele_list = html.xpath('//*[@id="comment_box"]/li')
-#     for ele in ele_list:
-#         # 获取时间并取月份
-#         date = ele.xpath('.//*[@class="e_comment_add_info"]//li[1]/text()')[0][5:7]
-#         time_value[time_item.index(date)] += 1
-#         # 获取评分并统计
-#         star = int(ele.xpath('.//*[@class="total_star"]/span/@class')[0][-1:])
-#         if star == 5:
-#             star_value[0] += 1
-#         if star == 3 or star == 4:
-#             star_value[1] += 1
-#         if star == 1 or star == 2:
-#             star_value[2] += 1
-#         # 获取评论并加入总文本
-#         try:
-#             comment_title = ele.xpath('.//*[@class="e_comment_title"]/a/text()')[0]
-#         except:
-#             comment_title = ''
-#         comment_str += comment_title
-#         comment_content = ele.xpath('.//*[@class="e_comment_content"]/p/text()')
-#         for content in comment_content:
-#             comment_str += content
-# create_pie_chart(time_item, time_value)
-# create_line_chart(star_item, star_value)
-# create_word_chart(comment_str)
+if __name__ == '__main__':
+    # 循环爬取1-200页
+    for page in range(1, 200):
+        # 请求url
+        url = f'https://travel.qunar.com/p-cs299826-fuzhou-jingdian-3-{page}'
+        # 发送请求
+        r = requests.get(url, headers=headers)
+        time.sleep(1)
+        html = etree.HTML(r.text)
+        # 获取景点列表
+        ele_list = html.xpath('//*[@class="listbox"]/ul/li')
+        for ele in ele_list:
+            # 获取景点名字、英文名、攻略数、点评数、好评率、简介（try处理数据为空的情况）
+            name = ele.xpath('.//*[@class="cn_tit"]/text()')[0]
+            try:
+                en_name = ele.xpath('.//*[@class="en_tit"]/text()')[0]
+            except:
+                en_name = '-'
+            strategy_sum = ele.xpath('.//*[@class="strategy_sum"]/text()')[0]
+            comment_sum = ele.xpath('.//*[@class="comment_sum"]/text()')[0]
+            star = ele.xpath('.//*[@class="cur_star"]/@style')[0]
+            try:
+                introduce = ele.xpath('.//*[@class="desbox"]/text()')[0]
+            except:
+                introduce = '-'
+            # 数据预处理
+            name = name.replace(' ', '')
+            en_name = en_name.replace(' ', '')
+            strategy_sum = strategy_sum.replace(' ', '').replace('\n', '')
+            comment_sum = comment_sum.replace(' ', '').replace('\n', '')
+            star = star.replace('width:', '')
+            introduce = introduce.replace('\n', '')
+            print(f'{name}   {en_name}   {strategy_sum}   {comment_sum}   {star}   {introduce}')
+            # 存入data
+            data['名字'].append(name)
+            data['英文名'].append(en_name)
+            data['攻略数'].append(strategy_sum)
+            data['点评数'].append(comment_sum)
+            data['好评率'].append(star)
+            data['简介'].append(introduce)
+    df = pd.DataFrame(data)
+    df.to_csv('福州旅游景点统计.csv', encoding='utf-8-sig', index=False)
+    #
+    # # 爬取八达岭长城50页评论，每页10条数据，并可视化
+    # time_item = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+    # time_value = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    # star_item = ['好评', '中评', '差评']
+    # star_value = [0, 0, 0]
+    # word_item = []
+    # word_value = []
+    # comment_str = ''
+    # for page in range(1, 51):
+    #     url = f'https://travel.qunar.com/p-oi703478-badalingzhangcheng-1-{page}#lydp'
+    #     r = requests.get(url, headers=headers)
+    #     time.sleep(1)
+    #     html = etree.HTML(r.text)
+    #     ele_list = html.xpath('//*[@id="comment_box"]/li')
+    #     for ele in ele_list:
+    #         # 获取时间并取月份
+    #         date = ele.xpath('.//*[@class="e_comment_add_info"]//li[1]/text()')[0][5:7]
+    #         time_value[time_item.index(date)] += 1
+    #         # 获取评分并统计
+    #         star = int(ele.xpath('.//*[@class="total_star"]/span/@class')[0][-1:])
+    #         if star == 5:
+    #             star_value[0] += 1
+    #         if star == 3 or star == 4:
+    #             star_value[1] += 1
+    #         if star == 1 or star == 2:
+    #             star_value[2] += 1
+    #         # 获取评论并加入总文本
+    #         try:
+    #             comment_title = ele.xpath('.//*[@class="e_comment_title"]/a/text()')[0]
+    #         except:
+    #             comment_title = ''
+    #         comment_str += comment_title
+    #         comment_content = ele.xpath('.//*[@class="e_comment_content"]/p/text()')
+    #         for content in comment_content:
+    #             comment_str += content
+    # create_pie_chart(time_item, time_value)
+    # create_line_chart(star_item, star_value)
+    # create_word_chart(comment_str)
