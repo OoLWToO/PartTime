@@ -1,3 +1,4 @@
+import random
 import re
 import time
 
@@ -5,18 +6,28 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from matplotlib import pyplot as plt
+from wordcloud import WordCloud
 
 headers = {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'Accept-Encoding': 'gzip, deflate, br, zstd',
-    'accept-language': 'zh-CN,zh;q=0.9',
-    'Cache-Control': 'max-age=0',
-    'Cookie': '__jsluid_s=c9bf2381199315a3f9d70fab5efbea9b; __jsl_clearance_s=1718590950.375|0|BNVMH65p0N9580f3nELVxfBlj1g%3D; PHPSESSID=mnnnrrlijttt606feek3bkdvg0; mfw_uuid=666f9de7-be92-5b8a-42db-f09d461618a6; oad_n=a%3A3%3A%7Bs%3A3%3A%22oid%22%3Bi%3A1029%3Bs%3A2%3A%22dm%22%3Bs%3A15%3A%22www.mafengwo.cn%22%3Bs%3A2%3A%22ft%22%3Bs%3A19%3A%222024-06-17+10%3A22%3A31%22%3B%7D; __mfwc=direct; __mfwa=1718590951232.55084.1.1718590951232.1718590951232; __mfwlv=1718590951; __mfwvn=1; Hm_lvt_8288b2ed37e5bc9b4c9f7008798d2de0=1718590951; uva=s%3A150%3A%22a%3A3%3A%7Bs%3A2%3A%22lt%22%3Bi%3A1718590952%3Bs%3A10%3A%22last_refer%22%3Bs%3A82%3A%22https%3A%2F%2Fwww.mafengwo.cn%2Flocaldeals%2F0-0-M10132-0-0-0-0-0.html%3Ffrom%3Dlocaldeals_index%22%3Bs%3A5%3A%22rhost%22%3BN%3B%7D%22%3B; __mfwurd=a%3A3%3A%7Bs%3A6%3A%22f_time%22%3Bi%3A1718590952%3Bs%3A9%3A%22f_rdomain%22%3Bs%3A15%3A%22www.mafengwo.cn%22%3Bs%3A6%3A%22f_host%22%3Bs%3A3%3A%22www%22%3B%7D; __mfwuuid=666f9de7-be92-5b8a-42db-f09d461618a6; __mfwb=7d6d46205828.2.direct; __mfwlt=1718590972; Hm_lpvt_8288b2ed37e5bc9b4c9f7008798d2de0=1718590973; bottom_ad_status=0',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "Accept-Encoding": "gzip, deflate, br, zstd",
+    "Accept-Language": "zh-CN,zh;q=0.9",
+    "Cache-Control": "max-age=0",
+    "Connection": "keep-alive",
+    "Sec-Ch-Ua": "\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\"",
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": "\"Windows\"",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "same-origin",
+    "Sec-Fetch-User": "?1",
+    "Upgrade-Insecure-Requests": "1",
+    'Cookie': 'lianjia_uuid=6f006fa1-6eca-467a-a506-9ba73db0d28c; crosSdkDT2019DeviceId=-yrjp1r-sbyxd0-czwdv7rmys0ug2t-37ieceqbd; ftkrc_=bac7d312-8a09-4b70-94ef-2afc76f73db6; lfrc_=55c625bb-0592-4564-bfba-acac6b870952; _ga=GA1.2.1019673696.1735353903; _ga_EYZV9X59TQ=GS1.2.1735353903.1.1.1735354091.0.0.0; _ga_DX18CJBZRT=GS1.2.1735353903.1.1.1735354091.0.0.0; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%221940b26d4441852-093bea2540e941-26011851-3686400-1940b26d4452988%22%2C%22%24device_id%22%3A%221940b26d4441852-093bea2540e941-26011851-3686400-1940b26d4452988%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_referrer%22%3A%22%22%2C%22%24latest_referrer_host%22%3A%22%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%7D%7D; _jzqx=1.1735353881.1735354907.2.jzqsr=clogin%2Elianjia%2Ecom|jzqct=/.jzqsr=cq%2Elianjia%2Ecom|jzqct=/ershoufang/nanan/; _ga_PV625F3L95=GS1.2.1735354126.1.1.1735355296.0.0.0; lianjia_ssid=c0e493de-63d3-48f8-982f-58f6ad712196; Hm_lvt_46bf127ac9b856df503ec2dbf942b67e=1735353881,1735354907,1735456312; HMACCOUNT=53BEF1F68DC70C31; _jzqa=1.4172086402817953000.1735353881.1735354907.1735456312.3; _jzqc=1; _jzqckmp=1; select_city=440300; _qzjc=1; _gid=GA1.2.68208787.1735456332; _ga_C4R21H79WC=GS1.2.1735456331.1.0.1735456331.0.0.0; login_ucid=2000000038985323; lianjia_token=2.0010d808e36811bb64017521d22b8d897d; lianjia_token_secure=2.0010d808e36811bb64017521d22b8d897d; security_ticket=cKOHLGnFgF+GgWDHLHbHDwwjrSL/7qsCDcephteXai/esl07+H6mA8LQODAWwn/YCVHXVn3AcR4cNhjp+MkbRzPdsc2T2cnGiHfd5XYf+X+RryXwfZMXPE+uCX1fzhdbhaFLb1gaDg/SxwsvR45OBFuGetLots7MH3SUCL8OtbY=; _qzja=1.741976075.1735456318914.1735456318914.1735456318914.1735456318914.1735456514551.0.0.0.2.1; _qzjb=1.1735456318914.2.0.0.0; _qzjto=2.1.0; _jzqb=1.4.10.1735456312.1; Hm_lpvt_46bf127ac9b856df503ec2dbf942b67e=1735456515; srcid=eyJ0Ijoie1wiZGF0YVwiOlwiYTE4ODAxNTk3YWY0MzdiYWUzMDhlYWFmMDlhOTU1ZDViOWUwZDQ1ZGIwNTViNTVjMmY4M2VhY2E4NWI1NjVmYmUwNzJiN2ZjOTBiZjFiYzJlNzM4MjMzMzA5Mjk3ZjY1Y2JmYTY4MWUzMDY2NmYzNTM1MDI5YjBlNzg2MDdhZTE2ZThhMGE3NThhNDZmYTM2MTgzNDQ5OTlhNzVmM2QzMTZhZTQ0ZmQyMmQzNmNmYmVmNGZiNWQ4YTMzZmFlNDE5M2IzYTM4N2ZjZmZlMDY2MDEwYWFkYTVhZGQxMGIzZWJiNGI1NDA5NTE0ZjU5YzNmOGEyZGRmMDhlYzRkMGJjOVwiLFwia2V5X2lkXCI6XCIxXCIsXCJzaWduXCI6XCI2YWJkNDdjZFwifSIsInIiOiJodHRwczovL3N6LmxpYW5qaWEuY29tL2Vyc2hvdWZhbmcvcGc2LyIsIm9zIjoid2ViIiwidiI6IjAuMSJ9',
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
 }
 
 data = {
-    '名称': [],
+    '标题': [],
     '总价': [],
     '单价': [],
     '地址': [],
@@ -66,10 +77,10 @@ def create_area_chart():
     plt.rcParams['font.sans-serif'] = ['SimHei']
     plt.figure(figsize=(16, 6))
     plt.bar(item, value)
-    plt.title('链家宜昌在售二手房面积统计条形图')
+    plt.title('链家深圳在售二手房面积统计条形图')
     plt.xlabel('面积（㎡）')
     plt.ylabel('数量')
-    plt.savefig('链家宜昌在售二手房面积统计条形图.png')
+    plt.savefig('链家深圳在售二手房面积统计条形图.png')
 
 
 def create_price_chart():
@@ -106,10 +117,10 @@ def create_price_chart():
     plt.rcParams['font.sans-serif'] = ['SimHei']
     plt.figure(figsize=(12, 6))
     plt.bar(item, value)
-    plt.title('链家宜昌在售二手房总价统计条形图')
+    plt.title('链家深圳在售二手房总价统计条形图')
     plt.xlabel('总价')
     plt.ylabel('数量')
-    plt.savefig('链家宜昌在售二手房总价统计条形图.png')
+    plt.savefig('链家深圳在售二手房总价统计条形图.png')
 
 
 def create_type_chart():
@@ -137,44 +148,55 @@ def create_type_chart():
     plt.rcParams['font.sans-serif'] = ['SimHei']
     plt.pie(sorted_value, labels=sorted_item, autopct='%1.1f%%', startangle=140)
     plt.axis('equal')
-    plt.title('链家宜昌在售二手房房型统计饼图')
-    plt.savefig('链家宜昌在售二手房房型统计饼图.png')
-
+    plt.title('链家深圳在售二手房房型统计饼图')
+    plt.savefig('链家深圳在售二手房房型统计饼图.png')
+    
+def create_word_chart():
+    word_str = ''
+    for d in data['标题']:
+        word_str += d
+    wc = WordCloud(font_path="simsun.ttc", width=800, height=600, mode="RGBA", background_color=None).generate(word_str)
+    plt.imshow(wc, interpolation='bilinear')
+    plt.rcParams['font.sans-serif'] = ['SimHei']
+    plt.axis("off")
+    plt.title('链家深圳在售二手房标题统计词云')
+    wc.to_file("链家深圳在售二手房标题统计词云.png")
 
 if __name__ == '__main__':
-    for i in range(1000):
+    for i in range(100):
         # 发送请求
-        url = f'https://yc.lianjia.com/ershoufang/pg{i + 1}/'
+        url = f'https://sz.lianjia.com/ershoufang/pg{i + 1}/'
         r = requests.get(url, headers=headers)
         print(url)
         # time.sleep一下，防止被封ip
-        time.sleep(3)
+        time.sleep(round(random.uniform(5, 20), 2))
         soup = BeautifulSoup(r.content, 'html.parser')
         # 根据class获取房屋列表
         house_list = soup.find_all('li', class_='clear')
         for house in house_list:
-            # 获取名称、总价、单价、地址、信息、标签
-            name = house.find('div', class_='title').a.text
+            # 获取标题、总价、单价、地址、信息、标签
+            title = house.find('div', class_='title').a.text
             price = house.find('div', class_='totalPrice totalPrice2').span.text
             unit_price = house.find('div', class_='unitPrice').span.text
             address = [x.text for x in house.find('div', class_='positionInfo').find_all('a')]
             info = house.find('div', class_='houseInfo').text
             tag = [x.text for x in house.find('div', class_='tag').find_all('span')]
             # 数据预处理
-            name = name.strip()
+            title = title.strip()
             price = f'{price}万'
             address = '-'.join(address)
             tag = '/'.join(tag)
-            print(f'{name}   {price}   {unit_price}   {address}   {info}   {tag}')
+            print(f'{title}   {price}   {unit_price}   {address}   {info}   {tag}')
             # 存入data
-            data['名称'].append(name)
+            data['标题'].append(title)
             data['总价'].append(price)
             data['单价'].append(unit_price)
             data['地址'].append(address)
             data['信息'].append(info)
             data['标签'].append(tag)
     df = pd.DataFrame(data)
-    df.to_csv('链家宜昌在售二手房数据.csv', encoding='utf-8-sig', index=False)
+    df.to_csv('链家深圳在售二手房数据.csv', encoding='utf-8-sig', index=False)
     create_area_chart()
     create_price_chart()
     create_type_chart()
+    create_word_chart()

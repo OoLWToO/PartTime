@@ -32,10 +32,12 @@ data = {
     '总市值(亿)': [],
     '总股本(亿)': [],
     '公告日期': [],
+    '涨幅大于10%': [],
+    '跌幅大于10%': [],
 }
 
 def get_data(date):
-    url = 'https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery112308810524360467862_1735266699917&sortColumns=HOLD_NOTICE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=300&pageNumber=1&reportName=RPT_HOLDERNUMLATEST&columns=SECURITY_CODE%2CSECURITY_NAME_ABBR%2CEND_DATE%2CINTERVAL_CHRATE%2CAVG_MARKET_CAP%2CAVG_HOLD_NUM%2CTOTAL_MARKET_CAP%2CTOTAL_A_SHARES%2CHOLD_NOTICE_DATE%2CHOLDER_NUM%2CPRE_HOLDER_NUM%2CHOLDER_NUM_CHANGE%2CHOLDER_NUM_RATIO%2CEND_DATE%2CPRE_END_DATE&quoteColumns=f2%2Cf3&quoteType=0&source=WEB&client=WEB'
+    url = 'https://datacenter-web.eastmoney.com/api/data/v1/get?callback=jQuery112308810524360467862_1735266699917&sortColumns=HOLD_NOTICE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=1000&pageNumber=1&reportName=RPT_HOLDERNUMLATEST&columns=SECURITY_CODE%2CSECURITY_NAME_ABBR%2CEND_DATE%2CINTERVAL_CHRATE%2CAVG_MARKET_CAP%2CAVG_HOLD_NUM%2CTOTAL_MARKET_CAP%2CTOTAL_A_SHARES%2CHOLD_NOTICE_DATE%2CHOLDER_NUM%2CPRE_HOLDER_NUM%2CHOLDER_NUM_CHANGE%2CHOLDER_NUM_RATIO%2CEND_DATE%2CPRE_END_DATE&quoteColumns=f2%2Cf3&quoteType=0&source=WEB&client=WEB'
     r = requests.get(url, headers=headers)
     stock_list = json.loads((r.text[r.text.find('(') + 1:r.text.find(')')]))['result']['data']
     for stock in stock_list:
@@ -51,6 +53,8 @@ def get_data(date):
         total_market_cap = round(stock['TOTAL_MARKET_CAP'] / 100000000, 2)
         total_a_shares = round(stock['TOTAL_A_SHARES'] / 100000000, 2)
         hold_notice_date = stock['HOLD_NOTICE_DATE'][:10]
+        up_warning = '是' if holder_num_ratio > 10 else '否'
+        fall_warning = '是' if holder_num_ratio < -10 else '否'
         if hold_notice_date < date:
             continue
         print(f'{code}   {name}   {holder_num}   {pre_holder_num}   {holder_num_change}   {holder_num_ratio}   '
@@ -67,8 +71,10 @@ def get_data(date):
         data['总市值(亿)'].append(total_market_cap)
         data['总股本(亿)'].append(total_a_shares)
         data['公告日期'].append(hold_notice_date)
+        data['涨幅大于10%'].append(up_warning)
+        data['跌幅大于10%'].append(fall_warning)
     df = pd.DataFrame(data)
     df.to_excel(f'东方财富网股东户数数据.xlsx', index=False)
 
 if __name__ == '__main__':
-    get_data('2024-12-26')
+    get_data('2024-12-25')

@@ -12,8 +12,6 @@ headers = {
     "Accept-Language": "zh-CN,zh;q=0.9",
     "Cache-Control": "max-age=0",
     "Connection": "keep-alive",
-    "Host": "cq.lianjia.com",
-    "Referer": "https://cq.lianjia.com/ershoufang/jiangbei/",
     "Sec-Ch-Ua": "\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\"",
     "Sec-Ch-Ua-Mobile": "?0",
     "Sec-Ch-Ua-Platform": "\"Windows\"",
@@ -28,6 +26,7 @@ headers = {
 
 
 data = {
+    '链接': [],
     '城市': [],
     '位置': [],
     '标题': [],
@@ -80,11 +79,11 @@ if __name__ == '__main__':
     }
     for city in citys:
         for position in positions[city]:
-            for page in range(20):
+            for page in range(25):
                 city_name = position_mapping[city]
                 position_name = position_mapping[position]
                 # 发送请求
-                url = f'https://{city}.lianjia.com/ershoufang/xixianxinquxian/pg{page + 1}/'
+                url = f'https://{city}.lianjia.com/ershoufang/{position}/pg{page + 1}/'
                 r = requests.get(url, headers=headers)
                 print(url)
                 # time.sleep一下，防止被封ip
@@ -120,6 +119,7 @@ if __name__ == '__main__':
                           f'{house_type}   {house_area}   {towards}   {renovation_situation}   {floor}   {building_type}   '
                           f'{followers_num}   {publish_time}   {tag}')
                     # 存入data
+                    data['链接'].append(url)
                     data['城市'].append(city_name)
                     data['位置'].append(position_name)
                     data['标题'].append(title)
