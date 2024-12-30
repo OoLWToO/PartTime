@@ -27,6 +27,7 @@ data = {
     '相关信息': [],
 }
 
+
 def getData():
     # 榜单id, 爬取科幻末世、都市日常
     category_id = ['8', '261']
@@ -48,6 +49,7 @@ def getData():
     df = pd.DataFrame(data)
     df.to_excel('番茄小说榜单统计.xlsx', index=False)
 
+
 def saveData(book_url, image_url, title, read_num, info):
     print(f'{book_url}   {image_url}   {title}   {read_num}   {info}')
     data['小说链接'].append(book_url)
@@ -55,6 +57,7 @@ def saveData(book_url, image_url, title, read_num, info):
     data['小说题目'].append(title)
     data['阅读人数'].append(read_num)
     data['相关信息'].append(info)
+
 
 if __name__ == '__main__':
     getData()

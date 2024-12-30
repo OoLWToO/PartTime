@@ -30,6 +30,7 @@ post_data = {
     'prodName': '黄花鱼',
 }
 
+
 def create_250g_price_chart():
     table_name = f'2023-2024-250g黄花鱼平均价统计条形图'
     item = []
@@ -56,6 +57,7 @@ def create_250g_price_chart():
     plt.xticks(rotation=45)
     plt.savefig(table_name)
 
+
 def create_500g_price_chart():
     table_name = f'2023-2024-500g黄花鱼平均价统计条形图'
     item = []
@@ -81,6 +83,7 @@ def create_500g_price_chart():
     plt.ylabel('数量')
     plt.xticks(rotation=45)
     plt.savefig(table_name)
+
 
 def create_750g_price_chart():
     table_name = f'2023-2024-750g黄花鱼平均价统计条形图'
@@ -110,6 +113,7 @@ def create_750g_price_chart():
     plt.ylabel('数量')
     plt.xticks(rotation=45)
     plt.savefig(table_name)
+
 
 def create_scatter_chart():
     table_name = f'2023-2024-黄花鱼规格与平均价格散点图'
@@ -143,6 +147,7 @@ def create_scatter_chart():
     plt.grid(True)
     # 保存图表
     plt.savefig(table_name)
+
 
 if __name__ == '__main__':
     url = 'http://www.xinfadi.com.cn/getPriceData.html'

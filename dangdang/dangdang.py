@@ -148,7 +148,7 @@ if __name__ == '__main__':
             data['简介'].append(introduce)
     df = pd.DataFrame(data)
     df.to_csv('当当网书籍统计.csv', encoding='utf-8-sig', index=False)
-    create_price_chart()
-    create_publish_chart()
-    create_star_chart()
+    # create_price_chart()
+    # create_publish_chart()
+    # create_star_chart()
 
