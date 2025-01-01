@@ -168,6 +168,7 @@ if __name__ == '__main__':
             data['总价'].append(price[j])
             data['每平方单价'].append(unit_price[j])
             data['介绍'].append(info[j])
+            data['介绍'].append(info[j])
     df = pd.DataFrame(data)
     df.to_csv('贝壳大连二手房数据.csv', encoding='utf-8-sig', index=False)
     create_area_chart()

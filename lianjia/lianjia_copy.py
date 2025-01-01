@@ -43,9 +43,9 @@ data = {
 
 
 if __name__ == '__main__':
-    for page in range(25):
+    for page in range(35):
         # 发送请求
-        url = f'https://cs.lianjia.com/ershoufang/pg{page + 1}/'
+        url = f'https://hhht.lianjia.com/ershoufang/pg{page + 1}/'
         r = requests.get(url, headers=headers)
         print(url)
         # time.sleep一下，防止被封ip
@@ -96,4 +96,4 @@ if __name__ == '__main__':
             data['发布时间'].append(publish_time)
             data['标签'].append(tag)
     df = pd.DataFrame(data)
-    df.to_csv('长沙链家在售二手房数据.csv', encoding='utf-8-sig', index=False)
+    df.to_csv('呼和浩特链家在售二手房数据.csv', encoding='utf-8-sig', index=False)

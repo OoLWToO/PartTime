@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 import pandas as pd
 import requests
@@ -150,6 +151,7 @@ def create_word_chart():
 
 
 def getData():
+    # 设置月份
     for month in range(1, 12):
         # 爬取25页数据，每页20条数据，共500条
         for page in range(25):
@@ -171,6 +173,9 @@ def getData():
                     author = ''
                 try:
                     publish_time = book.xpath('./*[@class="publisher_info"][2]/span/text()')[0]
+                    # 格式化日期
+                    date_obj = datetime.strptime(publish_time, "%Y-%m-%d")
+                    publish_time = date_obj.strftime("%Y年%m月%d日")
                 except:
                     publish_time = ''
                 try:
@@ -182,9 +187,11 @@ def getData():
                 physical_price_discount = book.xpath('./*[@class="price"]/p[1]//span[@class="price_s"]/text()')[0]
                 # 数据预处理
                 name = name.replace(' ', '')
+                comment_num = comment_num.replace('条评论', '')
+                recommended_ratio = recommended_ratio.replace('推荐', '')
                 physical_price_now = physical_price_now.replace('¥', '')
                 physical_price_original = physical_price_original.replace('¥', '')
-                physical_price_discount = physical_price_discount.replace('¥', '')
+                physical_price_discount = physical_price_discount.replace('折', '')
                 saveData(name, comment_num, recommended_ratio, author, publish_time, publish_house, physical_price_now,
                          physical_price_original, physical_price_discount)
 
