@@ -17,10 +17,17 @@ def create_driver():
     return driver
 
 data = {
-    '红书号': []
+    '名称': [],
+    '红书号': [],
+    '地区': [],
+    '简介': [],
+    '笔记数': [],
+    '粉丝数': [],
+    '点赞数': [],
+    '收藏数': [],
 }
 
-page = 3
+page = 1
 
 
 if __name__ == '__main__':
@@ -46,9 +53,23 @@ if __name__ == '__main__':
         user_header.click()
         time.sleep(2)
         driver.switch_to.window(driver.window_handles[-1])
+        name = driver.find_element_by_xpath('//*[@class="sider-wrapper"]//*[@class="nick_name"]/span').text
         red_num = driver.find_element_by_xpath('//*[@class="red_id"]').text.replace('红书号:', '')
-        print(f'{red_num}')
+        address = driver.find_element_by_xpath('//*[@class="sider-wrapper"]//*[@class="province"]').text.replace(' ', '').replace('地区', '')
+        info = driver.find_element_by_xpath('//*[@class="info-content-wrapper"]').text
+        note_num = driver.find_element_by_xpath('//p[text()="笔记数"]/preceding-sibling::*[1]').text
+        fans_num = driver.find_element_by_xpath('//p[text()="粉丝数"]/preceding-sibling::*[1]').text
+        like_num = driver.find_element_by_xpath('//p[text()="点赞数"]/preceding-sibling::*[1]').text
+        collect_num = driver.find_element_by_xpath('//p[text()="收藏数"]/preceding-sibling::*[1]').text
+        print(f'{name}   {red_num}   {address}   {info}   {note_num}   {fans_num}   {like_num}   {collect_num}')
+        data['名称'].append(name)
         data['红书号'].append(red_num)
+        data['地区'].append(address)
+        data['简介'].append(info)
+        data['笔记数'].append(note_num)
+        data['粉丝数'].append(fans_num)
+        data['点赞数'].append(like_num)
+        data['收藏数'].append(collect_num)
         # 关闭除了第一个窗口以外的窗口
         for handle in driver.window_handles:
             if handle != driver.window_handles[0]:
