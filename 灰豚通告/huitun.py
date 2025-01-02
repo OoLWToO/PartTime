@@ -17,7 +17,6 @@ def create_driver():
     return driver
 
 data = {
-    '用户名': [],
     '红书号': []
 }
 
@@ -47,10 +46,8 @@ if __name__ == '__main__':
         user_header.click()
         time.sleep(2)
         driver.switch_to.window(driver.window_handles[-1])
-        name = driver.find_element_by_xpath('//*[@class="nick_name"]/span').text
         red_num = driver.find_element_by_xpath('//*[@class="red_id"]').text.replace('红书号:', '')
-        print(f'{name}   {red_num}')
-        data['用户名'].append(name)
+        print(f'{red_num}')
         data['红书号'].append(red_num)
         # 关闭除了第一个窗口以外的窗口
         for handle in driver.window_handles:
@@ -59,6 +56,6 @@ if __name__ == '__main__':
                 driver.close()
         driver.switch_to.window(driver.window_handles[0])
         time.sleep(1)
-    df = pd.DataFrame(data)
-    df.to_excel('小红书账号.xlsx', index=False)
+        df = pd.DataFrame(data)
+        df.to_excel('小红书账号.xlsx', index=False)
 
