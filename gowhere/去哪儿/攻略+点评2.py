@@ -1,3 +1,4 @@
+import random
 import re
 import time
 import pandas as pd
@@ -19,6 +20,11 @@ headers = {
   "sec_fetch_site": "same-origin",
   "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
   "x_requested_with": "XMLHttpRequest"
+}
+
+proxies = {
+    'http': 'http://086EDCC9:8222678F716B@120.42.248.201:20037',
+    'https': 'http://086EDCC9:8222678F716B@120.42.248.201:20037',
 }
 
 data = {
@@ -51,14 +57,14 @@ raiders_url = 'https://travel.qunar.com/place/api/html/books/dist/{}?sortField=0
 comments_url = 'https://travel.qunar.com/place/api/html/comments/dist/{}?sortField=1&pageSize=50&page={}'
 
 if __name__ == '__main__':
-    for i in range(len(scenery_list)):
-        # for page in range(1, 101):
+    for i in range(1):
+        # for page in range(1, 21):
         #     print(f'正在爬取第{page}页攻略')
         #     # 请求url
         #     url = raiders_url.format(scenery_id_list[i], page)
         #     # 发送请求
         #     r = requests.get(url, headers=headers)
-        #     time.sleep(1)
+        #     time.sleep(round(random.uniform(3, 5), 2))
         #     html = etree.HTML(r.json()['data'])
         #     gonglue_eles = html.xpath('//*[@class="b_strategy_list bd_none"]/li')
         #     for gonglue_ele in gonglue_eles:
@@ -102,7 +108,7 @@ if __name__ == '__main__':
         #         if youji_id:
         #             youji_url = f'https://travel.qunar.com/travelbook/note/{youji_id}'
         #             r = requests.get(youji_url, headers=headers)
-        #             time.sleep(1)
+        #             time.sleep(round(random.uniform(3, 5), 2))
         #             html = etree.HTML(r.text)
         #             try:
         #                 publish_time = html.xpath('//*[@class="date"]/span[1]/text()')[0].replace('/', '-')
@@ -134,11 +140,11 @@ if __name__ == '__main__':
         #         data['正文'].append(main_text)
         #     df = pd.DataFrame(data)
         #     df.to_excel(f'{scenery_list[i]}攻略2.xlsx', index=False)
-        for page in range(1, 101):
+        for page in range(1, 21):
             print(f'正在爬取第{page}页点评')
             url = comments_url.format(scenery_id_list[i], page)
-            r = requests.get(url, headers=headers)
-            time.sleep(1)
+            r = requests.get(url, headers=headers, proxies=proxies)
+            time.sleep(round(random.uniform(3, 5), 2))
             html = etree.HTML(r.json()['data'])
             dianping_eles = html.xpath('//*[@id="comment_box"]/li')
             for dianping_ele in dianping_eles:
@@ -147,8 +153,8 @@ if __name__ == '__main__':
                 except:
                     dianping_url = ''
                 if dianping_url:
-                    r = requests.get(dianping_url, headers=headers)
-                    time.sleep(1)
+                    r = requests.get(dianping_url, headers=headers, proxies=proxies)
+                    time.sleep(round(random.uniform(3, 5), 2))
                     html = etree.HTML(r.text)
                     try:
                         title = ''.join(html.xpath('//*[@class="comment_title"]/h2//text()')).replace(' ', '').replace('\t', '').replace('\n', '')
@@ -163,7 +169,7 @@ if __name__ == '__main__':
                     except:
                         sorce = ''
                     try:
-                        content = ''.join(html.xpath('//*[@class="comment_content"]//text()')).replace('\n', '')
+                        content = ''.join(html.xpath('//*[@class="comment_content"]//text()')).replace(' ', '').replace('\n', '')
                     except:
                         content = ''
                 else:
@@ -172,10 +178,10 @@ if __name__ == '__main__':
                     sorce = ''
                     content = ''
                 print(f'{dianping_url}   {title}   {user}   {sorce}   {content}')
-                data['页面网址'].append(dianping_url)
-                data['标题'].append(title)
-                data['用户'].append(user)
-                data['评分'].append(sorce)
-                data['内容'].append(content)
-            df = pd.DataFrame(data)
+                comment_data['页面网址'].append(dianping_url)
+                comment_data['标题'].append(title)
+                comment_data['用户'].append(user)
+                comment_data['评分'].append(sorce)
+                comment_data['内容'].append(content)
+            df = pd.DataFrame(comment_data)
             df.to_excel(f'{scenery_list[i]}点评2.xlsx', index=False)
