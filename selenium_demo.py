@@ -6,7 +6,7 @@ data = {
 
 
 def create_driver():
-    chrome_driver_path = './driver/chromedriver_119.exe'
+    chrome_driver_path = './driver/chromedriver_131.exe'
     option = webdriver.ChromeOptions()
     option.add_experimental_option("detach", True)
     driver = webdriver.Chrome(executable_path=chrome_driver_path, chrome_options=option)

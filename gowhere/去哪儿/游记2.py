@@ -47,23 +47,18 @@ scenery_list = ['连江', '福建东山', '南澳',
 search_url = 'https://travel.qunar.com/search/gonglue/{}/hot_heat/{}.htm'
 
 if __name__ == '__main__':
-    i = 6
+    i = 17
     for page in range(1, 21):
         print(f'正在爬取第{page}页攻略')
         url = search_url.format(scenery_list[i], page)
         for j in range(3):
-            try:
-                r = requests.get(url, headers=headers)
-                time.sleep(round(random.uniform(3, 5), 2))
-                html = etree.HTML(r.text)
-                gonglue_eles = html.xpath('//*[@class="b_strategy_list "]/li')
-                if len(gonglue_eles) == 0 and '操作过于频繁' in r.text:
-                    raise print('操作过于频繁')
-                break
-            except:
-                if j == 2:
-                    raise print('错误')
-                print('请求错误，重试')
+            r = requests.get(url, headers=headers)
+            time.sleep(round(random.uniform(3, 5), 2))
+            html = etree.HTML(r.text)
+            gonglue_eles = html.xpath('//*[@class="b_strategy_list "]/li')
+            if len(gonglue_eles) == 0 and '操作过于频繁' in r.text:
+                raise print('操作过于频繁')
+            break
         for gonglue_ele in gonglue_eles:
             title = ''.join(gonglue_ele.xpath('.//h2/a//text()'))
             try:
