@@ -45,6 +45,8 @@ if __name__ == '__main__':
     html = etree.HTML(response.text)
     post_title = html.xpath('//*[@class="info"]//*[@class="title"]/a/text()')[0]
     post_page = int(html.xpath('//*[@class="paginator"]/a[last()]/text()')[0])
+    if post_page > 100:
+        post_page = 100
     for page in range(post_page):
         print(f'正在爬取{post_title}第{page+1}页主帖, 共{post_page}页')
         main_url = f'https://www.douban.com/group/{post_id}/discussion?start={page*25}&type=new'

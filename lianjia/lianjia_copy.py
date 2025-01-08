@@ -7,7 +7,6 @@ import requests
 from lxml import etree
 from matplotlib import pyplot as plt
 from wordcloud import WordCloud
-import numpy as np
 
 
 headers = {
@@ -47,43 +46,41 @@ data = {
 
 
 def create_price_chart():
-    item = ['29万-', '30-59万', '60-89万', '90-119万', '120-149万', '150-179万', '180-209万', '210-239万', '240-269万',
-            '270-299万', '300万+']
-    value = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    item = ['199万-', '200-299万', '300-399万', '400-499万', '500-599万', '600-699万', '700-799万', '800-899万', '900-999万',
+            '1000万+']
+    value = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for index, row in df.iterrows():
         try:
-            if float(row['总价（万）']) <= 29:
+            if float(row['总价（万）']) <= 199:
                 value[0] += 1
-            elif 30 <= float(row['总价（万）']) <= 59:
+            elif 200 <= float(row['总价（万）']) <= 299:
                 value[1] += 1
-            elif 60 <= float(row['总价（万）']) <= 89:
+            elif 300 <= float(row['总价（万）']) <= 399:
                 value[2] += 1
-            elif 90 <= float(row['总价（万）']) <= 119:
+            elif 400 <= float(row['总价（万）']) <= 499:
                 value[3] += 1
-            elif 120 <= float(row['总价（万）']) <= 149:
+            elif 500 <= float(row['总价（万）']) <= 599:
                 value[4] += 1
-            elif 150 <= float(row['总价（万）']) <= 179:
+            elif 600 <= float(row['总价（万）']) <= 699:
                 value[5] += 1
-            elif 180 <= float(row['总价（万）']) <= 209:
+            elif 700 <= float(row['总价（万）']) <= 799:
                 value[6] += 1
-            elif 210 <= float(row['总价（万）']) <= 239:
+            elif 800 <= float(row['总价（万）']) <= 899:
                 value[7] += 1
-            elif 240 <= float(row['总价（万）']) <= 269:
+            elif 900 <= float(row['总价（万）']) <= 999:
                 value[8] += 1
-            elif 270 <= float(row['总价（万）']) <= 299:
+            elif float(row['总价（万）']) >= 1000:
                 value[9] += 1
-            elif float(row['总价（万）']) >= 300:
-                value[10] += 1
         except:
             continue
     plt.clf()
     plt.rcParams['font.family'] = 'Microsoft YaHei'
     plt.figure(figsize=(12, 6))
     plt.bar(item, value)
-    plt.title('链家东莞在售二手房总价统计条形图')
+    plt.title('链家上海在售二手房总价统计条形图')
     plt.xlabel('总价')
     plt.ylabel('数量')
-    plt.savefig('链家东莞在售二手房总价统计条形图.png')
+    plt.savefig('链家上海在售二手房总价统计条形图.png')
 
 
 def create_area_chart():
@@ -123,10 +120,10 @@ def create_area_chart():
     plt.rcParams['font.family'] = 'Microsoft YaHei'
     plt.figure(figsize=(16, 6))
     plt.bar(item, value)
-    plt.title('链家东莞在售二手房面积统计条形图')
+    plt.title('链家上海在售二手房面积统计条形图')
     plt.xlabel('面积（㎡）')
     plt.ylabel('数量')
-    plt.savefig('链家东莞在售二手房面积统计条形图.png')
+    plt.savefig('链家上海在售二手房面积统计条形图.png')
 
 
 def create_type_chart():
@@ -149,8 +146,8 @@ def create_type_chart():
     plt.rcParams['font.sans-serif'] = ['SimHei']
     plt.pie(sorted_value, labels=sorted_item, autopct='%1.1f%%', startangle=140)
     plt.axis('equal')
-    plt.title('链家东莞在售二手房房型统计饼图')
-    plt.savefig('链家东莞在售二手房房型统计饼图.png')
+    plt.title('链家上海在售二手房房型统计饼图')
+    plt.savefig('链家上海在售二手房房型统计饼图.png')
 
 
 def create_word_chart():
@@ -161,8 +158,8 @@ def create_word_chart():
     plt.imshow(wc, interpolation='bilinear')
     plt.rcParams['font.sans-serif'] = ['SimHei']
     plt.axis("off")
-    plt.title('链家东莞在售二手房标题统计词云')
-    wc.to_file("链家东莞在售二手房标题统计词云.png")
+    plt.title('链家上海在售二手房标题统计词云')
+    wc.to_file("链家上海在售二手房标题统计词云.png")
 
 
 def create_scatter_chart():
@@ -181,16 +178,15 @@ def create_scatter_chart():
     # 创建散点图
     plt.scatter(sorted_item, sorted_value)
     # 添加标题和标签
-    plt.title('东莞在售二手房朝向与租金散点图')
+    plt.title('上海在售二手房朝向与单价散点图')
     plt.xticks(rotation=45)  # 旋转x轴标签，以便更好地显示
     plt.xlabel('朝向')
     plt.ylabel('租金')
     # 保存图表
-    plt.savefig(f'东莞在售二手房朝向与租金散点图')
+    plt.savefig(f'链家上海在售二手房朝向与单价散点图')
 
 
 def create_box_chart():
-    # 示例数据：总价（单位：万元）
     total_prices = []
     # 区域标签
     regions = []
@@ -207,13 +203,13 @@ def create_box_chart():
     plt.ylabel('总价（万元）', fontsize=14)
     plt.xticks(rotation=90)
     plt.grid(axis='y', linestyle='--', alpha=0.7)  # 添加网格线
-    plt.savefig(f'东莞在售二手房朝向与总价箱型图')
+    plt.savefig(f'链家上海在售二手房区域与总价箱型图')
 
 
 def get_data():
     for page in range(35):
         # 发送请求
-        url = f'https://dg.lianjia.com/ershoufang/pg{page + 1}/'
+        url = f'https://sh.lianjia.com/ershoufang/pg{page + 1}/'
         r = requests.get(url, headers=headers)
         print(url)
         # time.sleep一下，防止被封ip
@@ -264,12 +260,12 @@ def get_data():
             data['发布时间'].append(publish_time)
             data['标签'].append(tag)
     df = pd.DataFrame(data)
-    df.to_csv('东莞链家在售二手房数据.csv', encoding='utf-8-sig', index=False)
+    df.to_csv('上海链家在售二手房数据.csv', encoding='utf-8-sig', index=False)
 
 
 if __name__ == '__main__':
     # get_data()
-    df = pandas.read_csv('东莞链家在售二手房数据.csv')
+    df = pandas.read_csv('上海链家在售二手房数据.csv')
     create_price_chart()
     create_area_chart()
     create_type_chart()
