@@ -69,7 +69,7 @@ info_data = {
 
 
 def create_driver():
-    chrome_driver_path = '../driver/chromedriver_119.exe'
+    chrome_driver_path = '../driver/chromedriver_131.exe'
     option = webdriver.ChromeOptions()
     option.add_experimental_option("detach", True)
     driver = webdriver.Chrome(executable_path=chrome_driver_path, chrome_options=option)
@@ -79,34 +79,39 @@ def create_driver():
 
 
 if __name__ == '__main__':
+    page = 7
     driver = create_driver()
     # 检查路径是否存在
-    if not os.path.exists('C4D'):
-        os.makedirs('C4D')
-    for item in os.listdir('C4D'):
-        item_path = os.path.join('C4D', item)
+    if not os.path.exists(f'C4D{page}'):
+        os.makedirs(f'C4D{page}')
+    for item in os.listdir(f'C4D{page}'):
+        item_path = os.path.join(f'C4D{page}', item)
         if os.path.isfile(item_path) or os.path.islink(item_path):
             os.unlink(item_path)
         elif os.path.isdir(item_path):
             shutil.rmtree(item_path)
     url = 'http://suby.cn/api/anon/subyMaterial/getPageList'
-    page = 1
     print(f'正在爬取第{page}页')
     data['current'] = page
     data = json.dumps(data)
     response = requests.post(url=url, data=data, headers=headers)
     records = response.json()['data']['records']
-    for record in records:
+    for record in records[200:]:
         print(f'正在爬取第{records.index(record) + 1}条，共{len(records)}条')
         m_id = record['id']
         g_id = record['guid']
-        title = record['title']
-        os.makedirs(f'C4D/{title}')
+        title = record['title'].replace(':', '').replace(' ', '')
+        print(title)
+        if not os.path.exists(f'C4D{page}/{title}'):
+            os.makedirs(f'C4D{page}/{title}')
 
         # 保存标题图片
         base_image_url = record['thumbnailUrl']
-        response = requests.get(base_image_url, stream=True)
-        with open(f'C4D/{title}/标题图片.jpg', 'wb') as news_image:
+        try:
+            response = requests.get(base_image_url, stream=True)
+        except:
+            continue
+        with open(f'C4D{page}/{title}/标题图片.jpg', 'wb') as news_image:
             news_image.write(response.content)
 
         # 保存信息
@@ -140,7 +145,7 @@ if __name__ == '__main__':
         file_size = record['materialFilesize']
         upload_time = record['createTime']
         number = record['materialNo']
-        print(f'{title}   {purposes}   {m_format}   {texture}   {renderer}   {ty}   {file_size}   {upload_time}   {number}')
+        print(f'{purposes}   {m_format}   {texture}   {renderer}   {ty}   {file_size}   {upload_time}   {number}')
         info_data['标题'].append(title)
         info_data['用途'].append(purposes)
         info_data['格式'].append(m_format)
@@ -162,8 +167,10 @@ if __name__ == '__main__':
                     break
                 except:
                     pass
-            with open(f'C4D/{title}/图片{index + 1}.jpg', 'wb') as news_image:
+            with open(f'C4D{page}/{title}/图片{index + 1}.jpg', 'wb') as news_image:
                 news_image.write(response.content)
         if (records.index(record) + 1) % 100 == 0:
             df = pd.DataFrame(info_data)
-            df.to_excel(f'素白C4D.xlsx', index=False)
+            df.to_excel(f'素白C4D{page}.xlsx', index=False)
+    df = pd.DataFrame(info_data)
+    df.to_excel(f'素白C4D{page}.xlsx', index=False)

@@ -32,28 +32,28 @@ reply_data = {
 }
 
 post_dict = {
-    '今天也好好背单词了！': '667045',
-    '老友记': '682040',
-    '博士互助组----今天你毕业了吗': '653998',
-    'Sociological理论大缸': 'sociological',
-    '这个单词还有这个意思！': '722717',
-    '美剧fans': 'ustv',
-    '美剧': '629680',
-    '志萍版老友记英语笔记': '265038',
-    '人文社科syllabus交换计划': '689953',
-    '读读哲学': '703618',
-    '研究生們': 'postgraduates',
-    '学术作为志业': '146203',
-    '高校青椒的自留地': '714776',
-    '英文原版书友会': 'english',
-    '我发现个规律': 'guilv',
-    '有梗记单词': '707919',
-    '豆瓣学术八卦组': '679221',
-    '教育学教师的教育生活': '279640',
+    '今天也好好背单词了！': '667045',             # 138
+    '老友记': '682040',                        # 349
+    '博士互助组----今天你毕业了吗': '653998',      # 1121
+    'Sociological理论大缸': 'sociological',     # 8
+    '这个单词还有这个意思！': '722717',            # 160
+    '美剧fans': 'ustv',                        # 1071
+    '美剧': '629680',                          # 356
+    '志萍版老友记英语笔记': '265038',             # 6
+    '人文社科syllabus交换计划': '689953',        # 38
+    '读读哲学': '703618',                      # 26
+    '研究生們': 'postgraduates',               # 2147
+    '学术作为志业': '146203',                   # 3
+    '高校青椒的自留地': '714776',                # 164
+    '英文原版书友会': 'english',                # 308
+    '我发现个规律': 'guilv',                    # 2112
+    '有梗记单词': '707919',                    # 329
+    '豆瓣学术八卦组': '679221',                 # 30
+    '教育学教师的教育生活': '279640',            # 3
 }
 
 if __name__ == '__main__':
-    post_id = post_dict['博士互助组----今天你毕业了吗']
+    post_id = post_dict['老友记']
     base_url = f'https://www.douban.com/group/{post_id}/discussion?start=0&type=new'
     # 发送请求
     response = requests.get(base_url, headers=headers)
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     post_page = int(html.xpath('//*[@class="paginator"]/a[last()]/text()')[0])
     if post_page > 100:
         post_page = 100
-    for page in range(37, post_page):
+    for page in range(0, post_page):
         print(f'正在爬取{post_title}第{page+1}页主帖, 共{post_page}页')
         main_url = f'https://www.douban.com/group/{post_id}/discussion?start={page*25}&type=new'
         response = requests.get(main_url, headers=headers)
@@ -112,7 +112,7 @@ if __name__ == '__main__':
                 for comment in comment_list:
                     comment_poster = comment.xpath('.//h4/a/text()')[0]
                     comment_time = comment.xpath('.//h4/span/text()')[0]
-                    comment_content = ''.join(comment.xpath('.//*[@class="reply-content"]//p//text()'))
+                    comment_content = ''.join(comment.xpath('.//*[@class="reply-content"]//p//text()')).replace('\n', '')
                     try:
                         comment_like_num = re.search(r'\d+', comment.xpath('.//*[contains(text(),"赞")]/text()')[0]).group(0)
                     except:
