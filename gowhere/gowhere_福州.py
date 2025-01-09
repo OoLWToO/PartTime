@@ -60,7 +60,7 @@ if __name__ == '__main__':
     # 获取所有景点列表，循环爬取1-100页
     for page in range(1, 100):
         # 请求url
-        url = f'https://travel.qunar.com/p-cs299826-fuzhou-jingdian-3-{page}'
+        url = f'https://travel.qunar.com/p-cs300079-lijiang-jingdian-3-{page}'
         # 发送请求
         r = requests.get(url, headers=headers)
         time.sleep(1)
@@ -97,13 +97,13 @@ if __name__ == '__main__':
             data['好评率'].append(star)
             data['简介'].append(introduce)
     df = pd.DataFrame(data)
-    df.to_csv('福州旅游景点统计.csv', encoding='utf-8-sig', index=False)
+    df.to_csv('丽江旅游景点统计.csv', encoding='utf-8-sig', index=False)
 
-    # 爬取三坊七巷、永泰中国云顶、鼓山评论数据
-    scenery_name = ['三坊七巷', '永泰中国云顶', '鼓山']
-    bash_urls = ['https://travel.qunar.com/p-oi713884-sanfangqixiang',
-                 'https://travel.qunar.com/p-oi7469386-yongtaizhongguoyunding',
-                 'https://travel.qunar.com/p-oi701880-gushan']
+    # 爬取丽江古城、泸沽湖、玉龙雪山评论数据
+    scenery_name = ['丽江古城', '泸沽湖', '玉龙雪山']
+    bash_urls = ['https://travel.qunar.com/p-oi714422-lijianggucheng',
+                 'https://travel.qunar.com/p-oi720460-luguhu',
+                 'https://travel.qunar.com/p-oi714716-yulongxueshan']
     for bash_url in bash_urls:
         comment_data = {
             '景点名': [],

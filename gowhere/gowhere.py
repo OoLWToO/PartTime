@@ -60,7 +60,7 @@ if __name__ == '__main__':
     # 循环爬取1-200页
     for page in range(1, 200):
         # 请求url
-        url = f'https://travel.qunar.com/p-cs299826-fuzhou-jingdian-3-{page}'
+        url = f'https://travel.qunar.com/p-cs300079-lijiang-jingdian-3-{page}'
         # 发送请求
         r = requests.get(url, headers=headers)
         time.sleep(1)
@@ -97,43 +97,43 @@ if __name__ == '__main__':
             data['好评率'].append(star)
             data['简介'].append(introduce)
     df = pd.DataFrame(data)
-    df.to_csv('福州旅游景点统计.csv', encoding='utf-8-sig', index=False)
-    #
-    # # 爬取八达岭长城50页评论，每页10条数据，并可视化
-    # time_item = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-    # time_value = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    # star_item = ['好评', '中评', '差评']
-    # star_value = [0, 0, 0]
-    # word_item = []
-    # word_value = []
-    # comment_str = ''
-    # for page in range(1, 51):
-    #     url = f'https://travel.qunar.com/p-oi703478-badalingzhangcheng-1-{page}#lydp'
-    #     r = requests.get(url, headers=headers)
-    #     time.sleep(1)
-    #     html = etree.HTML(r.text)
-    #     ele_list = html.xpath('//*[@id="comment_box"]/li')
-    #     for ele in ele_list:
-    #         # 获取时间并取月份
-    #         date = ele.xpath('.//*[@class="e_comment_add_info"]//li[1]/text()')[0][5:7]
-    #         time_value[time_item.index(date)] += 1
-    #         # 获取评分并统计
-    #         star = int(ele.xpath('.//*[@class="total_star"]/span/@class')[0][-1:])
-    #         if star == 5:
-    #             star_value[0] += 1
-    #         if star == 3 or star == 4:
-    #             star_value[1] += 1
-    #         if star == 1 or star == 2:
-    #             star_value[2] += 1
-    #         # 获取评论并加入总文本
-    #         try:
-    #             comment_title = ele.xpath('.//*[@class="e_comment_title"]/a/text()')[0]
-    #         except:
-    #             comment_title = ''
-    #         comment_str += comment_title
-    #         comment_content = ele.xpath('.//*[@class="e_comment_content"]/p/text()')
-    #         for content in comment_content:
-    #             comment_str += content
-    # create_pie_chart(time_item, time_value)
-    # create_line_chart(star_item, star_value)
-    # create_word_chart(comment_str)
+    df.to_csv('丽江旅游景点统计.csv', encoding='utf-8-sig', index=False)
+
+    # 爬取丽江古城50页评论，每页10条数据，并可视化
+    time_item = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+    time_value = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    star_item = ['好评', '中评', '差评']
+    star_value = [0, 0, 0]
+    word_item = []
+    word_value = []
+    comment_str = ''
+    for page in range(1, 51):
+        url = f'https://travel.qunar.com/p-oi714422-lijianggucheng-1-{page}#lydp'
+        r = requests.get(url, headers=headers)
+        time.sleep(1)
+        html = etree.HTML(r.text)
+        ele_list = html.xpath('//*[@id="comment_box"]/li')
+        for ele in ele_list:
+            # 获取时间并取月份
+            date = ele.xpath('.//*[@class="e_comment_add_info"]//li[1]/text()')[0][5:7]
+            time_value[time_item.index(date)] += 1
+            # 获取评分并统计
+            star = int(ele.xpath('.//*[@class="total_star"]/span/@class')[0][-1:])
+            if star == 5:
+                star_value[0] += 1
+            if star == 3 or star == 4:
+                star_value[1] += 1
+            if star == 1 or star == 2:
+                star_value[2] += 1
+            # 获取评论并加入总文本
+            try:
+                comment_title = ele.xpath('.//*[@class="e_comment_title"]/a/text()')[0]
+            except:
+                comment_title = ''
+            comment_str += comment_title
+            comment_content = ele.xpath('.//*[@class="e_comment_content"]/p/text()')
+            for content in comment_content:
+                comment_str += content
+    create_pie_chart(time_item, time_value)
+    create_line_chart(star_item, star_value)
+    create_word_chart(comment_str)
