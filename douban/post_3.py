@@ -53,7 +53,7 @@ post_dict = {
 }
 
 if __name__ == '__main__':
-    post_id = post_dict['学术作为志业']
+    post_id = post_dict['志萍版老友记英语笔记']
     base_url = f'https://www.douban.com/group/{post_id}/discussion?start=0&type=new'
     # 发送请求
     response = requests.get(base_url, headers=headers)
