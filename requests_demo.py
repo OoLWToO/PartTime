@@ -6,7 +6,7 @@ headers = {
 }
 
 if __name__ == '__main__':
-    url = 'https://www.yuque.com/oolwtoo/lrhzza/grs6kagcekgnrzsy'
+    url = 'https://tps.kdlapi.com/api/gettpspro/?secret_id=oidgnb7luycrdctiwjkh&signature=sezctbabfpt22meej3damun8g5uuex5q&num=1&pt=1&format=json&sep=1'
     r = requests.get(url, headers=headers)
     html = etree.HTML(r.text)
     print()
