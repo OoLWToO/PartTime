@@ -55,11 +55,11 @@ def get_month_start_end(year, month):
     return start_date, end_date
 
 if __name__ == '__main__':
-    # for year in range(2019, 2025):
+    # for year in range(2014, 2025):
     #     for month in range(1, 13):
     #         begin_date, end_date = get_month_start_end(year, month)
-    begin_date = '2025-01-01'
-    end_date = '2025-01-20'
+    begin_date = '2021-06-01'
+    end_date = '2021-06-30'
     print(f"开始时间: {begin_date}, 结束时间: {end_date}")
     url = f'https://webapi.sporttery.cn/gateway/uniform/football/getUniformMatchResultV1.qry?matchBeginDate={begin_date}&matchEndDate={end_date}&leagueId=&pageSize=100&pageNo=2&isFix=0&matchPage=1&pcOrWap=1'
     try:
@@ -116,4 +116,4 @@ if __name__ == '__main__':
         for num in ['001', '002', '003', '004', '005']:
             df = pd.DataFrame(data[num])
             df = df.sort_values(by='时间')
-            df.to_excel(f'{num}_____.xlsx', index=False)
+            df.to_excel(f'{num}.xlsx', index=False)

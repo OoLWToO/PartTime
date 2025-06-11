@@ -276,14 +276,32 @@ def get_data(begin_time, end_time):
     data_json["publishDateEnd"] = date_to_timestamp(end_time)
     data_json["pageNo"] = 1
     post_data = json.dumps(data_json)
-    response = requests.post(url=url, data=post_data, headers=headers).json()
+    try:
+        response = requests.post(url=url, data=post_data, headers=headers).json()
+    except:
+        try:
+            response = requests.post(url=url, data=post_data, headers=headers).json()
+        except:
+            try:
+                response = requests.post(url=url, data=post_data, headers=headers).json()
+            except:
+                pass
     data_num = response['result']['data']['total']
     page_num = data_num // 15
     for page in range(page_num):
         print(f'正在爬取{begin_time}-{end_time}数据, 共{page_num}页, 当前页数{page + 1}')
         data_json["pageNo"] = page + 1
         post_data = json.dumps(data_json)
-        response = requests.post(url=url, data=post_data, headers=headers).json()
+        try:
+            response = requests.post(url=url, data=post_data, headers=headers).json()
+        except:
+            try:
+                response = requests.post(url=url, data=post_data, headers=headers).json()
+            except:
+                try:
+                    response = requests.post(url=url, data=post_data, headers=headers).json()
+                except:
+                    pass
         results = response['result']['data']['data']
         for result in results:
             try:
@@ -364,7 +382,6 @@ def get_month_start_end(start_date, end_date):
 
 if __name__ == '__main__':
     # 设置开始时间和结束时间
-    start_date = datetime(2021, 2, 1)
     end_date = datetime(2025, 2, 6)
     # 调用函数
     get_month_start_end(start_date, end_date)
