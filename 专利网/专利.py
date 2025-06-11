@@ -1,3 +1,5 @@
+import time
+
 from selenium import webdriver
 
 data = {
@@ -16,7 +18,12 @@ def create_driver():
 
 
 if __name__ == "__main__":
+    username = '15675710186'
+    password = 'As15675710186'
     # 创建driver
     driver = create_driver()
     driver.get('https://iptop.lotut.com/')
-    print()
+    # 登录操作
+    driver.find_element_by_xpath('//a[@onclick="triggerLogin()"]').click()
+    time.sleep(2)
+    driver.find_element_by_xpath('//li[text()="账号密码登录"]').click()
