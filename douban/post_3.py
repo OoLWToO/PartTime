@@ -35,10 +35,10 @@ post_dict = {
     '教育学教师的教育生活': '279640',
     '学术作为志业': '146203',
     '志萍版老友记英语笔记': '265038',
-    'Sociological理论大缸': 'sociological',      # 8
-    '读读哲学': '703618',                        # 26
+    'Sociological理论大缸': 'sociological',
+    '读读哲学': '703618',
     '豆瓣学术八卦组': '679221',
-    '人文社科syllabus交换计划': '689953',          # 38
+    '人文社科syllabus交换计划': '689953',
     '今天也好好背单词了！': '667045',               # 138
     '这个单词还有这个意思！': '722717',              # 160
     '高校青椒的自留地': '714776',                  # 164
@@ -53,7 +53,7 @@ post_dict = {
 }
 
 if __name__ == '__main__':
-    post_id = post_dict['志萍版老友记英语笔记']
+    post_id = post_dict['高校青椒的自留地']
     base_url = f'https://www.douban.com/group/{post_id}/discussion?start=0&type=new'
     # 发送请求
     response = requests.get(base_url, headers=headers)
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     post_page = int(html.xpath('//*[@class="paginator"]/a[last()]/text()')[0])
     if post_page > 100:
         post_page = 100
-    for page in range(0, post_page):
+    for page in range(46, post_page):
         print(f'正在爬取{post_title}第{page+1}页主帖, 共{post_page}页')
         main_url = f'https://www.douban.com/group/{post_id}/discussion?start={page*25}&type=new'
         response = requests.get(main_url, headers=headers)
@@ -132,6 +132,6 @@ if __name__ == '__main__':
             main_data['回复数'].append(reply_num)
         # 转成DataFrame格式存入csv
         df = pd.DataFrame(main_data)
-        df.to_csv(f'{post_title}主帖数据.csv', encoding='utf-8-sig', index=False)
+        df.to_csv(f'{post_title}主帖数据(覆盖).csv', encoding='utf-8-sig', index=False)
         df = pd.DataFrame(reply_data)
-        df.to_csv(f'{post_title}回复贴数据.csv', encoding='utf-8-sig', index=False)
+        df.to_csv(f'{post_title}回复贴数据(覆盖).csv', encoding='utf-8-sig', index=False)

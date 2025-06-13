@@ -382,7 +382,6 @@ def get_month_start_end(start_date, end_date):
 
 if __name__ == '__main__':
     # 设置开始时间和结束时间
-    start_date = datetime(2022, 12, 1)
     end_date = datetime(2025, 2, 6)
     # 调用函数
     get_month_start_end(start_date, end_date)
