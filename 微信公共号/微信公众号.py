@@ -1,5 +1,8 @@
 import json
-
+import time
+from lxml import etree
+import datetime
+import pandas as pd
 import requests
 
 headers = {
@@ -12,20 +15,34 @@ headers = {
     'Sec-Fetch-Dest': 'empty',
 }
 
+data = {
+    '标题': [],
+    '发布时间': [],
+    '文章链接': [],
+}
 
 if __name__ == '__main__':
-    url = 'https://mp.weixin.qq.com/cgi-bin/appmsgpublish?sub=list&search_field=null&begin=0&count=5&query=&fakeid=MzI2OTMzMzA3Ng%3D%3D&type=101_1&free_publish_type=1&sub_action=list_ex&fingerprint=82f31b34f6ff61dc67ed6c92b687637b&token=399439404&lang=zh_CN&f=json&ajax=1'
-
-    response = requests.get(url=url, headers=headers, verify=False)
-    article_list = json.loads(response.json()['publish_page'])['publish_list']
-    for article in article_list:
-        publish_info = json.loads(article['publish_info'])
-        appmsgexs = publish_info['appmsgex']
-        if len(appmsgexs) == 1:
-            link = appmsgexs[0]['link']
-            print(link)
-        else:
-            for appmsgex in appmsgexs:
-                link = appmsgex['link']
-                print(link)
-    print()
+    base_url = 'https://mp.weixin.qq.com/cgi-bin/appmsgpublish?sub=list&search_field=null&begin={}&count=1000000&query=&fakeid=Mzg4NTc3MjQ4MA%3D%3D&type=101_1&free_publish_type=1&sub_action=list_ex&fingerprint=82f31b34f6ff61dc67ed6c92b687637b&token=399439404&lang=zh_CN&f=json&ajax=1'
+    page = 0
+    while True:
+        print(f'正在爬取第{page // 5 + 1}页')
+        url = base_url.format(page)
+        response = requests.get(url=url, headers=headers)
+        time.sleep(3)
+        publish_list = json.loads(response.json()['publish_page'])['publish_list']
+        if len(publish_list) == 0:
+            break
+        for publish in publish_list:
+            article_list = json.loads(publish['publish_info'])['appmsgex']
+            for article in article_list:
+                title = article['title']
+                publish_time = datetime.datetime.fromtimestamp(article['create_time']).strftime("%Y-%m-%d")
+                link = article['link']
+                print(f'{title}   {publish_time}   {link}')
+                data['标题'].append(title)
+                data['发布时间'].append(publish_time)
+                data['文章链接'].append(link)
+        page += 5
+    print(f'共爬取{len(data["文章链接"])}条数据')
+    df = pd.DataFrame(data)
+    df.to_excel(f'公众号文章.xlsx', index=False)
